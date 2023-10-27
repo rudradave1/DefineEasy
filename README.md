@@ -1,5 +1,4 @@
 # DefineEasy
-DefineEasy
 ![Define Easy](https://github.com/rudradave1/DefineEasy/assets/35660907/ffc8e210-8e07-44c0-bb65-c33495f86aee)
 
 
