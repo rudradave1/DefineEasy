@@ -52,7 +52,7 @@ Contributing
 We welcome contributions from the open-source community. If you'd like to contribute to DefineEasy, please follow our contribution guidelines.
 
 License
-DefineEasy is licensed under the MIT License.
+[MIT License](LICENSE)
 
 Contact
 If you have any questions or need assistance, feel free to reach out to the project maintainers:
