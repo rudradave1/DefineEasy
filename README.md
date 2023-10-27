@@ -1,6 +1,8 @@
 # DefineEasy
-DefineEasy Android App
-![Define Easy](https://github.com/rudradave1/DefineEasy/assets/35660907/ffc8e210-8e07-44c0-bb65-c33495f86aee)
+DefineEasy
+![Define Easy]
+(https://github.com/rudradave1/DefineEasy/assets/35660907/ffc8e210-8e07-44c0-bb65-c33495f86aee)
+
 
 DefineEasy is a simple and powerful Android app that leverages Jetpack Compose, MVVM architecture, Dagger Hilt, and Room Database to provide users with quick and easy word definitions. With DefineEasy, users can search for words, view detailed definitions, and improve their vocabulary effortlessly.
 
@@ -34,7 +36,7 @@ Clone the repository:
 
 bash
 Copy code
-git clone https://github.com/yourusername/DefineEasy.git
+git clone https://github.com/rudradave1/DefineEasy.git
 Open the project in Android Studio.
 
 Build and run the app on an emulator or physical device.
@@ -57,5 +59,4 @@ DefineEasy is licensed under the MIT License.
 Contact
 If you have any questions or need assistance, feel free to reach out to the project maintainers:
 
-Email: defineeasy@example.com
 GitHub Issues: DefineEasy Issues
