@@ -57,4 +57,4 @@ License
 Contact
 If you have any questions or need assistance, feel free to reach out to the project maintainers:
 
-GitHub Issues: DefineEasy Issues
+GitHub Issues: [ISSUES](https://github.com/rudradave1/DefineEasy/issues) 
