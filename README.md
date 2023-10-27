@@ -1,7 +1,6 @@
 # DefineEasy
 DefineEasy
-![Define Easy]
-(https://github.com/rudradave1/DefineEasy/assets/35660907/ffc8e210-8e07-44c0-bb65-c33495f86aee)
+![Define Easy](https://github.com/rudradave1/DefineEasy/assets/35660907/ffc8e210-8e07-44c0-bb65-c33495f86aee)
 
 
 DefineEasy is a simple and powerful Android app that leverages Jetpack Compose, MVVM architecture, Dagger Hilt, and Room Database to provide users with quick and easy word definitions. With DefineEasy, users can search for words, view detailed definitions, and improve their vocabulary effortlessly.
