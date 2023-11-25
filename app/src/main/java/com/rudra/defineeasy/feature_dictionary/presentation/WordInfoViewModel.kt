@@ -42,26 +42,31 @@ class WordInfoViewModel @Inject constructor(
             delay(500L)
             getWordInfo(query)
                 .onEach { result ->
-                    when(result) {
+                    when (result) {
                         is Resource.Success -> {
                             _state.value = state.value.copy(
                                 wordInfoItems = result.data ?: emptyList(),
                                 isLoading = false
                             )
                         }
+
                         is Resource.Error -> {
                             _state.value = state.value.copy(
                                 wordInfoItems = result.data ?: emptyList(),
                                 isLoading = false
                             )
-                            _eventFlow.emit(UIEvent.ShowSnackbar(
-                                result.message ?: "Unknown error"
-                            ))
+                            _eventFlow.emit(
+                                UIEvent.ShowSnackbar(
+                                    result.message ?: "Unknown error"
+                                )
+                            )
                         }
+
                         is Resource.Loading -> {
                             _state.value = state.value.copy(
                                 wordInfoItems = result.data ?: emptyList(),
-                                isLoading = true
+                                isLoading = true,
+                                isSearchHistoryVisible = false
                             )
                         }
                     }
@@ -70,14 +75,20 @@ class WordInfoViewModel @Inject constructor(
     }
 
     fun updateSearchHistory() {
-        viewModelScope.launch {
+        if (!state.value.isSearchHistoryVisible)
+            viewModelScope.launch {
+                _state.value = state.value.copy(
+                    searchHistory = getSearchHistory(),
+                    isSearchHistoryVisible = true
+                )
+            }
+        else
             _state.value = state.value.copy(
-                searchHistory = getSearchHistory()
+                isSearchHistoryVisible = false
             )
-        }
     }
 
     sealed class UIEvent {
-        data class ShowSnackbar(val message: String): UIEvent()
+        data class ShowSnackbar(val message: String) : UIEvent()
     }
 }

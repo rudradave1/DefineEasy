@@ -1,4 +1,4 @@
-package com.rudra.defineeasy.feature_dictionary.presentation
+package com.rudra.defineeasy.feature_dictionary.presentation.components
 
 
 import androidx.compose.foundation.layout.Column

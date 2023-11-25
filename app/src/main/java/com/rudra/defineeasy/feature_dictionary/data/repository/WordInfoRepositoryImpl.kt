@@ -43,8 +43,8 @@ class WordInfoRepositoryImpl(
         emit(Resource.Success(newWordInfos))
     }
 
-    override suspend fun getSearchHistory(): List<String> {
-        return dao.getSearchHistory().map { it.word }
+    override suspend fun getSearchHistory(): Set<String> {
+        return dao.getSearchHistory().map { it.word }.toSet()
     }
 
 }

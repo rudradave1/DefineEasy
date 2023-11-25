@@ -6,7 +6,7 @@ class GetSearchHistory(
     private val repository: WordInfoRepository
 ) {
 
-    suspend operator fun invoke(): List<String> {
+    suspend operator fun invoke(): Set<String> {
         return repository.getSearchHistory()
     }
 
