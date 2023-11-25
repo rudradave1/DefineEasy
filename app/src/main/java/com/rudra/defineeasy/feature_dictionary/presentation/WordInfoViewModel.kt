@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rudra.defineeasy.core.util.Resource
+import com.rudra.defineeasy.feature_dictionary.domain.use_case.GetSearchHistory
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.GetWordInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -19,7 +20,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WordInfoViewModel @Inject constructor(
-    private val getWordInfo: GetWordInfo
+    private val getWordInfo: GetWordInfo,
+    private val getSearchHistory: GetSearchHistory,
 ) : ViewModel() {
 
     private val _searchQuery = mutableStateOf("")
@@ -64,6 +66,14 @@ class WordInfoViewModel @Inject constructor(
                         }
                     }
                 }.launchIn(this)
+        }
+    }
+
+    fun updateSearchHistory() {
+        viewModelScope.launch {
+            _state.value = state.value.copy(
+                searchHistory = getSearchHistory()
+            )
         }
     }
 

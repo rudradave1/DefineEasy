@@ -2,7 +2,6 @@ package com.rudra.defineeasy.feature_dictionary.data.local
 
 import androidx.room.Dao
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
 import com.rudra.defineeasy.feature_dictionary.data.local.entity.WordInfoEntity
@@ -10,7 +9,7 @@ import com.rudra.defineeasy.feature_dictionary.data.local.entity.WordInfoEntity
 @Dao
 interface WordInfoDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = REPLACE)
     suspend fun insertWordInfos(infos: List<WordInfoEntity>)
 
     @Query("DELETE FROM wordinfoentity WHERE word IN(:words)")
@@ -18,4 +17,7 @@ interface WordInfoDao {
 
     @Query("SELECT * FROM wordinfoentity WHERE word LIKE '%' || :word || '%'")
     suspend fun getWordInfos(word: String): List<WordInfoEntity>
+
+    @Query("SELECT * FROM wordinfoentity LIMIT 20")
+    suspend fun getSearchHistory(): List<WordInfoEntity>
 }
