@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rudra.defineeasy.core.util.Resource
+import com.rudra.defineeasy.feature_dictionary.domain.use_case.GetSearchHistory
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.GetWordInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -19,7 +20,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WordInfoViewModel @Inject constructor(
-    private val getWordInfo: GetWordInfo
+    private val getWordInfo: GetWordInfo,
+    private val getSearchHistory: GetSearchHistory,
 ) : ViewModel() {
 
     private val _searchQuery = mutableStateOf("")
@@ -40,26 +42,31 @@ class WordInfoViewModel @Inject constructor(
             delay(500L)
             getWordInfo(query)
                 .onEach { result ->
-                    when(result) {
+                    when (result) {
                         is Resource.Success -> {
                             _state.value = state.value.copy(
                                 wordInfoItems = result.data ?: emptyList(),
                                 isLoading = false
                             )
                         }
+
                         is Resource.Error -> {
                             _state.value = state.value.copy(
                                 wordInfoItems = result.data ?: emptyList(),
                                 isLoading = false
                             )
-                            _eventFlow.emit(UIEvent.ShowSnackbar(
-                                result.message ?: "Unknown error"
-                            ))
+                            _eventFlow.emit(
+                                UIEvent.ShowSnackbar(
+                                    result.message ?: "Unknown error"
+                                )
+                            )
                         }
+
                         is Resource.Loading -> {
                             _state.value = state.value.copy(
                                 wordInfoItems = result.data ?: emptyList(),
-                                isLoading = true
+                                isLoading = true,
+                                isSearchHistoryVisible = false
                             )
                         }
                     }
@@ -67,7 +74,21 @@ class WordInfoViewModel @Inject constructor(
         }
     }
 
+    fun updateSearchHistory() {
+        if (!state.value.isSearchHistoryVisible)
+            viewModelScope.launch {
+                _state.value = state.value.copy(
+                    searchHistory = getSearchHistory(),
+                    isSearchHistoryVisible = true
+                )
+            }
+        else
+            _state.value = state.value.copy(
+                isSearchHistoryVisible = false
+            )
+    }
+
     sealed class UIEvent {
-        data class ShowSnackbar(val message: String): UIEvent()
+        data class ShowSnackbar(val message: String) : UIEvent()
     }
 }

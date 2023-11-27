@@ -42,4 +42,9 @@ class WordInfoRepositoryImpl(
         val newWordInfos = dao.getWordInfos(word).map { it.toWordInfo() }
         emit(Resource.Success(newWordInfos))
     }
+
+    override suspend fun getSearchHistory(): Set<String> {
+        return dao.getSearchHistory().map { it.word }.toSet()
+    }
+
 }

@@ -9,6 +9,7 @@ import com.rudra.defineeasy.feature_dictionary.data.remote.DictionaryApi
 import com.rudra.defineeasy.feature_dictionary.data.repository.WordInfoRepositoryImpl
 import com.rudra.defineeasy.feature_dictionary.data.util.GsonParser
 import com.rudra.defineeasy.feature_dictionary.domain.repository.WordInfoRepository
+import com.rudra.defineeasy.feature_dictionary.domain.use_case.GetSearchHistory
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.GetWordInfo
 import dagger.Module
 import dagger.Provides
@@ -26,6 +27,12 @@ object WordInfoModule {
     @Singleton
     fun provideGetWordInfoUseCase(repository: WordInfoRepository): GetWordInfo {
         return GetWordInfo(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetSearchHistoryUseCase(repository: WordInfoRepository): GetSearchHistory {
+        return GetSearchHistory(repository)
     }
 
     @Provides
