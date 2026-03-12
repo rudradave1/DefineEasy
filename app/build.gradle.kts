@@ -1,3 +1,38 @@
+import java.util.Properties
+
+// ---------------------------------------------------------------------------
+// Dynamic versioning from git
+// ---------------------------------------------------------------------------
+fun getVersionCode(): Int {
+    return try {
+        val process = Runtime.getRuntime().exec("git rev-list --count HEAD")
+        val count = process.inputStream.bufferedReader().readLine().trim().toInt()
+        process.waitFor()
+        count
+    } catch (e: Exception) {
+        1
+    }
+}
+
+fun getVersionName(): String {
+    return try {
+        val process = Runtime.getRuntime().exec("git describe --tags --always")
+        val name = process.inputStream.bufferedReader().readLine().trim()
+        process.waitFor()
+        name
+    } catch (e: Exception) {
+        "1.0.0"
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Load local.properties for signing secrets
+// ---------------------------------------------------------------------------
+val localProperties = Properties().apply {
+    val localPropsFile = rootProject.file("local.properties")
+    if (localPropsFile.exists()) load(localPropsFile.inputStream())
+}
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -16,12 +51,23 @@ android {
         applicationId = "com.rudra.defineeasy"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "2.0"
+        versionCode = getVersionCode()
+        versionName = getVersionName()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = file("../new-upload-key.jks")
+            storePassword = System.getenv("KEYSTORE_PASSWORD")
+                ?: localProperties.getProperty("keystore.password", "")
+            keyAlias = "upload"
+            keyPassword = System.getenv("KEY_PASSWORD")
+                ?: localProperties.getProperty("key.password", "")
         }
     }
 
@@ -31,6 +77,7 @@ android {
             buildConfigField("boolean", "CRASHLYTICS_ENABLED", "false")
         }
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             buildConfigField("boolean", "CRASHLYTICS_ENABLED", "true")
             proguardFiles(
