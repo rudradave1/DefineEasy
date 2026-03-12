@@ -14,8 +14,6 @@ Download
 
 • Search: Users can easily search for words, and DefineEasy will provide comprehensive definitions.
 
-• Save Favorites: Save your favorite words for quick access, even offline.
-
 • Offline Access: Once you've searched for a word, you can access its definition offline.
 
 • Intuitive UI: The app features a user-friendly interface built with Jetpack Compose for a seamless experience.
@@ -59,6 +57,10 @@ Dagger Hilt
 Room Database
 Retrofit
 Please refer to the build.gradle files for a complete list of dependencies.
+
+## Firebase Setup
+
+Crashlytics is configured for release builds. Replace `app/google-services.json` with your own Firebase project configuration before shipping to production.
 
 <h1 align=center>Contributing</h1>
 We welcome contributions from the open-source community. If you'd like to contribute to DefineEasy, please follow our contribution guidelines.

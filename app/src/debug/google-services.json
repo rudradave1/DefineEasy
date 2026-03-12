@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "506450133305",
+    "project_id": "defineeasy-2b335",
+    "storage_bucket": "defineeasy-2b335.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:506450133305:android:cb8f9253fd52f446bce8e8",
+        "android_client_info": {
+          "package_name": "com.rudra.defineeasy.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmAPZPqE5-9eSLkMrtEMpl5JrsZDYko9Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

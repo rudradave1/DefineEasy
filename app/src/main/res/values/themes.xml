@@ -2,4 +2,11 @@
 <resources>
 
     <style name="Theme.DefineEasy" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.DefineEasy.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.DefineEasy</item>
+    </style>
+
 </resources>

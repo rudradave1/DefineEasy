@@ -10,15 +10,27 @@ data class WordInfoEntity(
     val word: String,
     val phonetic: String,
     val origin: String,
+    val audioUrl: String,
+    val repetitions: Int = 0,
+    val intervalDays: Int = 0,
+    val easinessFactor: Double = 2.5,
+    val nextReviewDateEpochDay: Long = 0,
+    val isFavorited: Boolean = false,
     val meanings: List<Meaning>,
     @PrimaryKey val id: Int? = null
 ) {
     fun toWordInfo(): WordInfo {
         return WordInfo(
+            audioUrl = audioUrl,
+            easinessFactor = easinessFactor,
+            intervalDays = intervalDays,
+            isFavorited = isFavorited,
             meanings = meanings,
+            nextReviewDateEpochDay = nextReviewDateEpochDay,
             word = word,
             origin = origin,
-            phonetic = phonetic
+            phonetic = phonetic,
+            repetitions = repetitions
         )
     }
 }

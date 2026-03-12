@@ -19,3 +19,36 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Room
+-keep class androidx.room.** { *; }
+-keep @androidx.room.Entity class * { *; }
+
+# Retrofit / Gson
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class retrofit2.** { *; }
+-keep class com.google.gson.** { *; }
+-keep class com.rudra.defineeasy.feature_dictionary.data.remote.dto.** { *; }
+
+# Hilt / Dagger
+-keep class dagger.hilt.** { *; }
+-keep class javax.inject.** { *; }
+-keep class * extends dagger.hilt.internal.GeneratedComponent { *; }
+
+# SQLCipher / SQLite
+-keep class net.sqlcipher.** { *; }
+-keep class androidx.sqlite.** { *; }
+
+# Crashlytics
+-keep class com.google.firebase.crashlytics.** { *; }
+
+# Optional OkHttp security providers
+-dontwarn org.bouncycastle.jsse.BCSSLParameters
+-dontwarn org.bouncycastle.jsse.BCSSLSocket
+-dontwarn org.bouncycastle.jsse.provider.BouncyCastleJsseProvider
+-dontwarn org.conscrypt.Conscrypt$Version
+-dontwarn org.conscrypt.Conscrypt
+-dontwarn org.openjsse.javax.net.ssl.SSLParameters
+-dontwarn org.openjsse.javax.net.ssl.SSLSocket
+-dontwarn org.openjsse.net.ssl.OpenJSSE
