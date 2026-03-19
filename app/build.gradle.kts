@@ -58,6 +58,9 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        ndk {
+            abiFilters += listOf("arm64-v8a", "x86_64")
+        }
     }
 
     signingConfigs {
@@ -101,9 +104,11 @@ android {
     }
     lint {
         disable += "StateFlowValueCalledInComposition"
+        baseline = file("lint-baseline.xml")
     }
     packaging {
         jniLibs {
+            useLegacyPackaging = false
             keepDebugSymbols += "**/libdatastore_shared_counter.so"
             keepDebugSymbols += "**/libsqlcipher.so"
         }
