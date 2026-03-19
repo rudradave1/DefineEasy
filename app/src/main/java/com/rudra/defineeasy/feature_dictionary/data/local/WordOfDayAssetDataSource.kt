@@ -26,7 +26,7 @@ class WordOfDayAssetDataSource @Inject constructor(
     private fun loadWords(): List<WordOfDay> {
         return try {
             context.assets.open("wotd.json").bufferedReader().use { reader ->
-                val type = object : TypeToken<List<WordOfDay>>() {}.type
+                val type = TypeToken.getParameterized(List::class.java, WordOfDay::class.java).type
                 gson.fromJson(reader, type)
             }
         } catch (throwable: Throwable) {

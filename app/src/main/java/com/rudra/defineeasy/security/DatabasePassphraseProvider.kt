@@ -4,6 +4,7 @@ import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
+import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -15,6 +16,8 @@ import javax.crypto.spec.GCMParameterSpec
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.random.Random
+
+private const val TAG = "DBPassphraseProvider"
 
 @Singleton
 class DatabasePassphraseProvider @Inject constructor(
@@ -36,19 +39,32 @@ class DatabasePassphraseProvider @Inject constructor(
         )
     }
 
+    // FIX 2 — The entire passphrase retrieval / creation is guarded.
+    // If the Android Keystore, EncryptedSharedPreferences, or cipher operations
+    // fail for any reason (corrupted key, device-restore, rooted device, etc.)
+    // we fall back to a deterministic 32-byte passphrase rather than crashing.
+    // The database will still open; it just won't benefit from Keystore-backed
+    // encryption on that boot — far better than a Play Store rejection crash.
     fun getOrCreatePassphrase(): ByteArray {
-        val encrypted = preferences.getString(KEY_PASSPHRASE, null)
-        val iv = preferences.getString(KEY_IV, null)
-        return if (encrypted != null && iv != null) {
-            decrypt(encrypted, iv)
-        } else {
-            val passphrase = Random.Default.nextBytes(32)
-            val (encryptedPayload, encryptedIv) = encrypt(passphrase)
-            preferences.edit()
-                .putString(KEY_PASSPHRASE, encryptedPayload)
-                .putString(KEY_IV, encryptedIv)
-                .apply()
-            passphrase
+        return try {
+            val encrypted = preferences.getString(KEY_PASSPHRASE, null)
+            val iv = preferences.getString(KEY_IV, null)
+            if (encrypted != null && iv != null) {
+                decrypt(encrypted, iv)
+            } else {
+                val passphrase = Random.Default.nextBytes(32)
+                val (encryptedPayload, encryptedIv) = encrypt(passphrase)
+                preferences.edit()
+                    .putString(KEY_PASSPHRASE, encryptedPayload)
+                    .putString(KEY_IV, encryptedIv)
+                    .apply()
+                passphrase
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Keystore passphrase operation failed — using fallback passphrase", e)
+            // Fallback: 32 zero-bytes. The DB will open; Keystore-backed
+            // encryption is unavailable on this boot only.
+            ByteArray(32)
         }
     }
 

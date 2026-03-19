@@ -30,10 +30,10 @@ class CollectionAssetDataSource @Inject constructor(
             try {
                 context.assets.open(fileName).bufferedReader().use { reader ->
                     if (collectionId == CollectionIds.CONFUSED) {
-                        val type = object : TypeToken<List<CollectionWordDto>>() {}.type
+                        val type = TypeToken.getParameterized(List::class.java, CollectionWordDto::class.java).type
                         gson.fromJson<List<CollectionWordDto>>(reader, type)
                     } else {
-                        val type = object : TypeToken<List<String>>() {}.type
+                        val type = TypeToken.getParameterized(List::class.java, String::class.java).type
                         val strings: List<String> = gson.fromJson(reader, type)
                         strings.map { CollectionWordDto(word = it) }
                     }

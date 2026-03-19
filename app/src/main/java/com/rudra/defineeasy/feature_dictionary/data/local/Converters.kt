@@ -14,9 +14,10 @@ class Converters(
 ) {
     @TypeConverter
     fun fromMeaningsJson(json: String): List<Meaning> {
-        return jsonParser.fromJson<ArrayList<Meaning>>(
+        val type = TypeToken.getParameterized(ArrayList::class.java, Meaning::class.java).type
+        return jsonParser.fromJson(
             json,
-            object : TypeToken<ArrayList<Meaning>>(){}.type
+            type
         ) ?: emptyList()
     }
 
@@ -24,7 +25,7 @@ class Converters(
     fun toMeaningsJson(meanings: List<Meaning>): String {
         return jsonParser.toJson(
             meanings,
-            object : TypeToken<ArrayList<Meaning>>(){}.type
+            TypeToken.getParameterized(ArrayList::class.java, Meaning::class.java).type
         ) ?: "[]"
     }
 }
