@@ -30,7 +30,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import net.sqlcipher.database.SupportFactory
+import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
@@ -155,13 +155,16 @@ object WordInfoModule {
         passphraseProvider: DatabasePassphraseProvider
     ): WordInfoDatabase {
         return try {
+            System.loadLibrary("sqlcipher")
             Room.databaseBuilder(
                 app, WordInfoDatabase::class.java, "word_db"
             ).addTypeConverter(Converters(GsonParser(gson)))
                 .addMigrations(WordInfoDatabase.MIGRATION_1_2)
                 .addMigrations(WordInfoDatabase.MIGRATION_2_3)
                 .addMigrations(WordInfoDatabase.MIGRATION_3_4)
-                .openHelperFactory(SupportFactory(passphraseProvider.getOrCreatePassphrase()))
+                .openHelperFactory(
+                    SupportOpenHelperFactory(passphraseProvider.getOrCreatePassphrase())
+                )
                 .build()
         } catch (throwable: Throwable) {
             CrashReporter.logNonFatal(throwable)
