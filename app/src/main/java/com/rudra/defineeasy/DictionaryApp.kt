@@ -3,14 +3,16 @@ package com.rudra.defineeasy
 import android.app.Application
 import android.os.StrictMode
 import android.util.Log
-import com.google.firebase.FirebaseApp
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.google.firebase.FirebaseApp
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.rudra.defineeasy.core.CrashReporter
 import com.rudra.defineeasy.notifications.DictionaryAppNotificationChannel
 import com.rudra.defineeasy.notifications.ReviewReminderScheduler
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -24,13 +26,18 @@ class DictionaryApp : Application(), Configuration.Provider {
     @Inject lateinit var workerFactory: HiltWorkerFactory
     @Inject lateinit var reviewReminderScheduler: ReviewReminderScheduler
 
-    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val startupExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        Log.e(TAG, "Background startup task failed", throwable)
+        CrashReporter.logNonFatal(throwable)
+    }
+
+    private val applicationScope = CoroutineScope(
+        SupervisorJob() + Dispatchers.Default + startupExceptionHandler
+    )
 
     override fun onCreate() {
         super.onCreate()
 
-        // FIX 3 — Detect accidental main-thread I/O in debug builds only.
-        // penaltyLog() prints to Logcat; never used in release.
         if (BuildConfig.DEBUG) {
             StrictMode.setThreadPolicy(
                 StrictMode.ThreadPolicy.Builder()
@@ -42,29 +49,48 @@ class DictionaryApp : Application(), Configuration.Provider {
             )
         }
 
-        // FIX 5 — Top-level guard: if any initialisation step throws we log
-        // the error and continue rather than crashing the process.
-        try {
+        initializeFirebaseCrashlytics()
+        createNotificationChannelsSafely()
+        scheduleReviewRemindersSafely()
+    }
 
-            // FIX 1 — Firebase / Crashlytics: guard individually so a missing
-            // or invalid google-services.json never kills the app.
-            try {
+    private fun initializeFirebaseCrashlytics() {
+        runCatching {
+            if (FirebaseApp.getApps(this).isEmpty()) {
                 FirebaseApp.initializeApp(this)
+            }
+        }.onFailure { throwable ->
+            Log.e(TAG, "Firebase initialization failed; continuing without it", throwable)
+            CrashReporter.logNonFatal(throwable)
+        }
+
+        runCatching {
+            if (FirebaseApp.getApps(this).isNotEmpty()) {
                 FirebaseCrashlytics.getInstance()
                     .setCrashlyticsCollectionEnabled(BuildConfig.CRASHLYTICS_ENABLED)
-            } catch (e: Exception) {
-                Log.e(TAG, "Firebase/Crashlytics init failed — continuing without it", e)
             }
+        }.onFailure { throwable ->
+            Log.e(TAG, "Crashlytics configuration failed; continuing without it", throwable)
+        }
+    }
 
+    private fun createNotificationChannelsSafely() {
+        runCatching {
             DictionaryAppNotificationChannel.createChannels(this)
+        }.onFailure { throwable ->
+            Log.e(TAG, "Notification channel setup failed", throwable)
+            CrashReporter.logNonFatal(throwable)
+        }
+    }
 
-            applicationScope.launch {
+    private fun scheduleReviewRemindersSafely() {
+        applicationScope.launch {
+            runCatching {
                 reviewReminderScheduler.syncSchedule()
+            }.onFailure { throwable ->
+                Log.e(TAG, "Review reminder scheduling failed", throwable)
+                CrashReporter.logNonFatal(throwable)
             }
-
-        } catch (e: Exception) {
-            // Last-resort catch: log and survive rather than crashing.
-            Log.e(TAG, "Critical error during app initialisation", e)
         }
     }
 

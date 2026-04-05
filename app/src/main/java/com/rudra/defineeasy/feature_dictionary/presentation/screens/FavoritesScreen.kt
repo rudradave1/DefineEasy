@@ -1,5 +1,6 @@
 package com.rudra.defineeasy.feature_dictionary.presentation.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,10 +45,12 @@ import com.rudra.defineeasy.feature_dictionary.presentation.FavoritesViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoritesScreen(
+    onNavigateUp: () -> Unit = {},
     onWordSelected: (String) -> Unit,
     viewModel: FavoritesViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    BackHandler(onBack = onNavigateUp)
 
     Scaffold(
         topBar = {

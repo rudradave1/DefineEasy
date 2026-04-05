@@ -14,49 +14,94 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+private val DefineEasyDarkColorScheme = darkColorScheme(
+    primary = IndigoSeed,
+    onPrimary = TextPrimaryDark,
+    primaryContainer = VioletGlow,
+    onPrimaryContainer = TextPrimaryDark,
+    secondary = ReviewAmber,
+    onSecondary = DeepIndigo,
+    secondaryContainer = CardSurface,
+    onSecondaryContainer = TextPrimaryDark,
+    tertiary = EasyGreen,
+    onTertiary = DeepIndigo,
+    tertiaryContainer = ElevatedSurface,
+    onTertiaryContainer = TextPrimaryDark,
+    background = MidnightSurface,
+    onBackground = TextPrimaryDark,
+    surface = MidnightSurface,
+    onSurface = TextPrimaryDark,
+    surfaceVariant = CardSurface,
+    onSurfaceVariant = TextSecondaryDark,
+    surfaceContainer = ElevatedSurface,
+    surfaceContainerLow = ElevatedSurface,
+    surfaceContainerHigh = CardSurface,
+    surfaceContainerHighest = CardSurface,
+    outline = SoftOutline,
+    error = HardRed,
+    onError = TextPrimaryDark,
+    errorContainer = HardRed.copy(alpha = 0.2f),
+    onErrorContainer = HardRed
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+private val DefineEasyLightColorScheme = lightColorScheme(
+    primary = IndigoSeed,
+    onPrimary = TextPrimaryDark,
+    primaryContainer = IndigoSeed.copy(alpha = 0.18f),
+    onPrimaryContainer = DeepIndigo,
+    secondary = GoodAmber,
+    onSecondary = DeepIndigo,
+    tertiary = EasyGreen,
+    onTertiary = DeepIndigo
 )
 
 @Composable
 fun DefineEasyTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
+    val context = LocalContext.current
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (darkTheme) {
+                dynamicDarkColorScheme(context).copy(
+                    primary = IndigoSeed,
+                    primaryContainer = VioletGlow,
+                    secondary = ReviewAmber,
+                    tertiary = EasyGreen,
+                    background = MidnightSurface,
+                    surface = MidnightSurface,
+                    surfaceVariant = CardSurface,
+                    surfaceContainer = ElevatedSurface,
+                    surfaceContainerLow = ElevatedSurface,
+                    surfaceContainerHigh = CardSurface,
+                    surfaceContainerHighest = CardSurface,
+                    onBackground = TextPrimaryDark,
+                    onSurface = TextPrimaryDark,
+                    onSurfaceVariant = TextSecondaryDark,
+                    outline = SoftOutline,
+                    error = HardRed,
+                    onError = TextPrimaryDark
+                )
+            } else {
+                dynamicLightColorScheme(context).copy(
+                    primary = IndigoSeed,
+                    secondary = GoodAmber,
+                    tertiary = EasyGreen
+                )
+            }
         }
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> DefineEasyDarkColorScheme
+        else -> DefineEasyLightColorScheme
     }
+
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
 

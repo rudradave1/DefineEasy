@@ -1,29 +1,12 @@
 import java.util.Properties
 
 // ---------------------------------------------------------------------------
-// Dynamic versioning from git
+// Release versioning
 // ---------------------------------------------------------------------------
-fun getVersionCode(): Int {
-    return try {
-        val process = Runtime.getRuntime().exec("git rev-list --count HEAD")
-        val count = process.inputStream.bufferedReader().readLine().trim().toInt()
-        process.waitFor()
-        count
-    } catch (e: Exception) {
-        1
-    }
-}
-
-fun getVersionName(): String {
-    return try {
-        val process = Runtime.getRuntime().exec("git describe --tags --always")
-        val name = process.inputStream.bufferedReader().readLine().trim()
-        process.waitFor()
-        name
-    } catch (e: Exception) {
-        "1.0.0"
-    }
-}
+// Use explicit release values so the Play upload always reflects the current
+// build, even when the working tree changes without a new commit.
+val APP_VERSION_CODE = 25
+val APP_VERSION_NAME = "3.0.1"
 
 // ---------------------------------------------------------------------------
 // Load local.properties for signing secrets
@@ -51,8 +34,8 @@ android {
         applicationId = "com.rudra.defineeasy"
         minSdk = 26
         targetSdk = 35
-        versionCode = getVersionCode()
-        versionName = getVersionName()
+        versionCode = APP_VERSION_CODE
+        versionName = APP_VERSION_NAME
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -191,8 +174,8 @@ dependencies {
 
     // Kotlin Extensions and Coroutines support for Room
     implementation("androidx.room:room-ktx:2.8.4")
-    implementation("androidx.sqlite:sqlite-ktx:2.5.2")
-    implementation("net.zetetic:android-database-sqlcipher:4.5.4")
+    implementation("androidx.sqlite:sqlite-ktx:2.4.0")
+    implementation("net.zetetic:android-database-sqlcipher:4.5.4@aar")
 }
 
 // Allow references to generated code

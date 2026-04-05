@@ -1,5 +1,10 @@
 package com.rudra.defineeasy.navigation
 
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.navigation.NavType
@@ -15,6 +20,7 @@ import com.rudra.defineeasy.feature_dictionary.presentation.screens.SearchScreen
 import com.rudra.defineeasy.feature_dictionary.presentation.screens.WordDetailScreenRoute
 import com.rudra.defineeasy.settings.SettingsScreen
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun DefineEasyNavGraph(
     navController: NavHostController,
@@ -22,7 +28,19 @@ fun DefineEasyNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = DefineEasyDestination.Search.route
+        startDestination = DefineEasyDestination.Search.route,
+        enterTransition = {
+            slideInHorizontally(initialOffsetX = { it / 6 }) + fadeIn()
+        },
+        exitTransition = {
+            slideOutHorizontally(targetOffsetX = { -it / 8 }) + fadeOut()
+        },
+        popEnterTransition = {
+            slideInHorizontally(initialOffsetX = { -it / 6 }) + fadeIn()
+        },
+        popExitTransition = {
+            slideOutHorizontally(targetOffsetX = { it / 8 }) + fadeOut()
+        }
     ) {
         composable(route = DefineEasyDestination.Search.route) {
             SearchScreen(
@@ -32,18 +50,22 @@ fun DefineEasyNavGraph(
                 contentPadding = contentPadding,
                 onOpenSettings = {
                     navController.navigate(DefineEasyDestination.Settings.route)
+                },
+                onOpenReview = {
+                    navController.navigate(DefineEasyDestination.Review.route)
                 }
             )
         }
         composable(route = DefineEasyDestination.Favorites.route) {
             FavoritesScreen(
+                onNavigateUp = { navController.navigateUp() },
                 onWordSelected = { word ->
                     navController.navigate(DefineEasyDestination.WordDetail.createRoute(word))
                 }
             )
         }
         composable(route = DefineEasyDestination.Review.route) {
-            ReviewScreen()
+            ReviewScreen(onNavigateUp = { navController.navigateUp() })
         }
         composable(route = DefineEasyDestination.Collections.route) {
             CollectionsScreen(
@@ -53,7 +75,7 @@ fun DefineEasyNavGraph(
             )
         }
         composable(route = DefineEasyDestination.Settings.route) {
-            SettingsScreen(onBackClick = navController::navigateUp)
+            SettingsScreen(onNavigateUp = { navController.navigateUp() })
         }
         composable(
             route = DefineEasyDestination.CollectionWords.route,
@@ -62,7 +84,7 @@ fun DefineEasyNavGraph(
             )
         ) {
             CollectionWordsScreenRoute(
-                onBackClick = navController::navigateUp,
+                onNavigateUp = { navController.navigateUp() },
                 onWordSelected = { word ->
                     navController.navigate(DefineEasyDestination.WordDetail.createRoute(word))
                 }
@@ -75,7 +97,7 @@ fun DefineEasyNavGraph(
             )
         ) {
             WordDetailScreenRoute(
-                onBackClick = navController::navigateUp,
+                onNavigateUp = { navController.navigateUp() },
                 onWordSelected = { word ->
                     navController.navigate(DefineEasyDestination.WordDetail.createRoute(word))
                 }

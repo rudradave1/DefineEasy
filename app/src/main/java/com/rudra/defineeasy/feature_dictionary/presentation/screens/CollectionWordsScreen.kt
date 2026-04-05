@@ -1,5 +1,6 @@
 package com.rudra.defineeasy.feature_dictionary.presentation.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -52,7 +53,7 @@ import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun CollectionWordsScreenRoute(
-    onBackClick: () -> Unit,
+    onNavigateUp: () -> Unit,
     onWordSelected: (String) -> Unit,
     viewModel: CollectionWordsViewModel = hiltViewModel()
 ) {
@@ -70,7 +71,7 @@ fun CollectionWordsScreenRoute(
 
     CollectionWordsScreen(
         uiState = uiState,
-        onBackClick = onBackClick,
+        onNavigateUp = onNavigateUp,
         onWordClick = viewModel::openWord,
         onAddToReviewClick = { item ->
             viewModel.addToReview(item.word, item.isInReview)
@@ -84,19 +85,20 @@ fun CollectionWordsScreenRoute(
 @Composable
 fun CollectionWordsScreen(
     uiState: com.rudra.defineeasy.feature_dictionary.presentation.CollectionWordsUiState,
-    onBackClick: () -> Unit,
+    onNavigateUp: () -> Unit,
     onWordClick: (com.rudra.defineeasy.feature_dictionary.domain.model.CollectionWord) -> Unit,
     onAddToReviewClick: (CollectionWordUiModel) -> Unit,
     onLoadDefinition: (String) -> Unit,
     onCheckCache: (String) -> Unit
 ) {
     val metadata = collectionUiMetadata(uiState.collectionId)
+    BackHandler(onBack = onNavigateUp)
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(text = stringResource(metadata.titleRes)) },
                 navigationIcon = {
-                    androidx.compose.material3.IconButton(onClick = onBackClick) {
+                    androidx.compose.material3.IconButton(onClick = onNavigateUp) {
                         androidx.compose.material3.Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.back)
