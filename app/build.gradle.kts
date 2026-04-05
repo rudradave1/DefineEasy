@@ -5,8 +5,8 @@ import java.util.Properties
 // ---------------------------------------------------------------------------
 // Use explicit release values so the Play upload always reflects the current
 // build, even when the working tree changes without a new commit.
-val APP_VERSION_CODE = 25
-val APP_VERSION_NAME = "3.0.1"
+val APP_VERSION_CODE = 26
+val APP_VERSION_NAME = "3.0.2"
 
 // ---------------------------------------------------------------------------
 // Load local.properties for signing secrets
