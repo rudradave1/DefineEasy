@@ -12,6 +12,7 @@
     <string name="unfavorite_word">Unfavorite word</string>
     <string name="word_not_found">Word not found</string>
     <string name="word_not_found_message">We couldn\'t load details for this word.</string>
+    <string name="word_details_loading_title">Loading word details…</string>
     <string name="retry">Retry</string>
     <string name="tap_to_retry">Tap to retry</string>
     <string name="tap_to_load_definition">Tap to load definition</string>
@@ -29,6 +30,8 @@
     <string name="collections_tab">Collections</string>
     <string name="word_of_day_label">WORD OF DAY</string>
     <string name="learn_word_of_day">Learn →</string>
+    <string name="word_of_day_unavailable_title">Word of the day is unavailable</string>
+    <string name="word_of_day_unavailable_body">Try again in a moment while we reload today\'s word.</string>
     <string name="word_of_day_fallback_title">Today\'s word is loading</string>
     <string name="word_of_day_fallback_definition">A fresh word and meaning will appear here when the daily card is ready.</string>
     <string name="streak_card_zero">🔥 Start your streak today</string>

@@ -26,22 +26,27 @@ class CollectionAssetDataSource @Inject constructor(
     fun getCollectionWords(collectionId: String): List<CollectionWordDto> {
         return cache.getOrPut(collectionId) {
             val fileName = fileNames[collectionId]
-                ?: error("Unknown collection id: $collectionId")
+                ?: run {
+                    CrashReporter.logNonFatal(
+                        IllegalArgumentException("Unknown collection id: $collectionId")
+                    )
+                    return@getOrPut emptyList()
+                }
             try {
                 context.assets.open(fileName).bufferedReader().use { reader ->
                     if (collectionId == CollectionIds.CONFUSED) {
                         val type = TypeToken.getParameterized(List::class.java, CollectionWordDto::class.java).type
-                        gson.fromJson<List<CollectionWordDto>>(reader, type)
+                        gson.fromJson<List<CollectionWordDto>>(reader, type) ?: emptyList()
                     } else {
                         val type = TypeToken.getParameterized(List::class.java, String::class.java).type
-                        val strings: List<String> = gson.fromJson(reader, type)
+                        val strings: List<String> = gson.fromJson(reader, type) ?: emptyList()
                         strings.map { CollectionWordDto(word = it) }
                     }
                 }
 
             } catch (throwable: Throwable) {
                 CrashReporter.logNonFatal(throwable)
-                throw throwable
+                emptyList()
             }
         }
     }

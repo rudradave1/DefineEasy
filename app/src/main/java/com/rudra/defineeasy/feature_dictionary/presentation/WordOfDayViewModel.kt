@@ -2,6 +2,7 @@ package com.rudra.defineeasy.feature_dictionary.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rudra.defineeasy.core.CrashReporter
 import com.rudra.defineeasy.feature_dictionary.data.local.WordOfDayPreferences
 import com.rudra.defineeasy.feature_dictionary.domain.model.Definition
 import com.rudra.defineeasy.feature_dictionary.domain.model.Meaning
@@ -31,18 +32,31 @@ class WordOfDayViewModel @Inject constructor(
     val uiState: androidx.compose.runtime.State<WordOfDayUiState> = _uiState
 
     init {
+        loadWordOfDay()
+    }
+
+    private fun loadWordOfDay() {
         viewModelScope.launch {
-            val today = LocalDate.now().toString()
-            if (wordOfDayPreferences.getShownDate() == today) {
-                return@launch
+            runCatching {
+                val today = LocalDate.now().toString()
+                val wordOfDay = getWordOfDayUseCase()
+                val isFavorited = getSavedWordInfo(wordOfDay.word)?.isFavorited == true
+                val shouldShowSheet = wordOfDayPreferences.getShownDate() != today
+                WordOfDayUiState(
+                    wordOfDay = wordOfDay,
+                    isVisible = shouldShowSheet,
+                    isFavorited = isFavorited,
+                    isLoading = false
+                )
+            }.onSuccess { state ->
+                _uiState.value = state
+            }.onFailure { throwable ->
+                CrashReporter.logNonFatal(throwable)
+                _uiState.value = _uiState.value.copy(
+                    isVisible = false,
+                    isLoading = false
+                )
             }
-            val wordOfDay = getWordOfDayUseCase()
-            val isFavorited = getSavedWordInfo(wordOfDay.word)?.isFavorited == true
-            _uiState.value = WordOfDayUiState(
-                wordOfDay = wordOfDay,
-                isVisible = true,
-                isFavorited = isFavorited
-            )
         }
     }
 

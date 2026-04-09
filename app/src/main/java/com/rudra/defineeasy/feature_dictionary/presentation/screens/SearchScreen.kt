@@ -290,7 +290,7 @@ private fun SearchHeroSection(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         WordOfDayHeroCard(
-            wordOfDay = wordOfDayState.wordOfDay,
+            wordOfDayState = wordOfDayState,
             onOpenWord = { wordOfDayState.wordOfDay?.let { onOpenWord(it.word) } }
         )
         Row(
@@ -315,7 +315,7 @@ private fun SearchHeroSection(
 
 @Composable
 private fun WordOfDayHeroCard(
-    wordOfDay: WordOfDay?,
+    wordOfDayState: WordOfDayUiState,
     onOpenWord: () -> Unit
 ) {
     Card(
@@ -332,9 +332,11 @@ private fun WordOfDayHeroCard(
                 )
                 .padding(20.dp)
         ) {
-            if (wordOfDay == null) {
+            when {
+                wordOfDayState.isLoading -> {
                 WordOfDayCardLoading()
-            } else {
+                }
+                wordOfDayState.wordOfDay != null -> {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
                         text = stringResource(R.string.word_of_day_label),
@@ -344,13 +346,13 @@ private fun WordOfDayHeroCard(
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
-                        text = wordOfDay.word,
+                        text = wordOfDayState.wordOfDay.word,
                         color = Color.White,
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = wordOfDay.definition,
+                        text = wordOfDayState.wordOfDay.definition,
                         color = Color.White.copy(alpha = 0.72f),
                         style = MaterialTheme.typography.bodyMedium,
                         maxLines = 3,
@@ -368,6 +370,10 @@ private fun WordOfDayHeroCard(
                             )
                         }
                     }
+                }
+                }
+                else -> {
+                    WordOfDayCardUnavailable()
                 }
             }
         }
@@ -405,6 +411,30 @@ private fun WordOfDayCardLoading() {
                     .background(Color.White.copy(alpha = 0.2f))
             )
         }
+    }
+}
+
+@Composable
+private fun WordOfDayCardUnavailable() {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(
+            text = stringResource(R.string.word_of_day_label),
+            color = Color.White.copy(alpha = 0.68f),
+            letterSpacing = 1.4.sp,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.SemiBold
+        )
+        Text(
+            text = stringResource(R.string.word_of_day_unavailable_title),
+            color = Color.White,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = stringResource(R.string.word_of_day_unavailable_body),
+            color = Color.White.copy(alpha = 0.78f),
+            style = MaterialTheme.typography.bodyMedium
+        )
     }
 }
 
@@ -600,10 +630,13 @@ private fun ConnectivityManager.isCurrentlyOnline(): Boolean {
 private fun WordOfDayHeroCardPreview() {
     DefineEasyTheme {
         WordOfDayHeroCard(
-            wordOfDay = WordOfDay(
-                word = "sagacious",
-                phonetic = "",
-                definition = "Showing good judgment and a calm understanding of what matters."
+            wordOfDayState = WordOfDayUiState(
+                wordOfDay = WordOfDay(
+                    word = "sagacious",
+                    phonetic = "",
+                    definition = "Showing good judgment and a calm understanding of what matters."
+                ),
+                isLoading = false
             ),
             onOpenWord = {}
         )
@@ -620,7 +653,8 @@ private fun SearchHeroSectionPreview() {
                     word = "lucid",
                     phonetic = "",
                     definition = "Expressed clearly enough to be understood at once."
-                )
+                ),
+                isLoading = false
             ),
             dueCount = 6,
             onOpenWord = {},

@@ -186,8 +186,16 @@ object WordInfoModule {
                 gson = gson,
                 openHelperFactory = null
             )
-            fallbackDatabase.openHelper.writableDatabase
-            fallbackDatabase
+            runCatching {
+                fallbackDatabase.openHelper.writableDatabase
+                fallbackDatabase
+            }.getOrElse { secondThrowable ->
+                fallbackDatabase.close()
+                CrashReporter.logNonFatal(secondThrowable)
+
+                app.deleteDatabase(WORD_DB_NAME)
+                buildInMemoryWordInfoDatabase(app, gson)
+            }
         }
     }
 
@@ -210,6 +218,17 @@ object WordInfoModule {
         }
 
         return builder.build()
+    }
+
+    private fun buildInMemoryWordInfoDatabase(
+        app: Application,
+        gson: Gson
+    ): WordInfoDatabase {
+        return Room.inMemoryDatabaseBuilder(
+            app,
+            WordInfoDatabase::class.java
+        ).addTypeConverter(Converters(GsonParser(gson)))
+            .build()
     }
 
     @Provides

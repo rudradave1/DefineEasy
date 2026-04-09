@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.rudra.defineeasy.core.CrashReporter
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -19,7 +20,11 @@ class WordOfDayPreferences @Inject constructor(
     private val shownDateKey: Preferences.Key<String> = stringPreferencesKey("word_of_day_shown_date")
 
     suspend fun getShownDate(): String? {
-        return context.wordOfDayDataStore.data.first()[shownDateKey]
+        return runCatching {
+            context.wordOfDayDataStore.data.first()[shownDateKey]
+        }.onFailure {
+            CrashReporter.logNonFatal(it)
+        }.getOrNull()
     }
 
     suspend fun setShownDate(date: String) {

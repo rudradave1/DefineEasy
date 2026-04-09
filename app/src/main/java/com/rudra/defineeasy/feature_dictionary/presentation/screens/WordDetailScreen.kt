@@ -130,7 +130,13 @@ fun WordDetailScreen(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(R.string.word_not_found)) },
+                title = {
+                    Text(
+                        text = state.wordInfo?.word
+                            ?: if (state.isLoading) stringResource(R.string.word_details_loading_title)
+                            else stringResource(R.string.word_not_found)
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateUp) {
                         Icon(

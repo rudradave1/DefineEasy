@@ -16,9 +16,17 @@ class WordOfDayAssetDataSource @Inject constructor(
     private val gson: Gson
 ) {
     private var cachedWords: List<WordOfDay>? = null
+    private val fallbackWord = WordOfDay(
+        word = "welcome",
+        phonetic = "",
+        definition = "Discover and review new words every day."
+    )
 
     fun getWordOfDay(): WordOfDay {
         val words = cachedWords ?: loadWords().also { cachedWords = it }
+        if (words.isEmpty()) {
+            return fallbackWord
+        }
         val index = (LocalDate.now().dayOfYear - 1) % words.size
         return words[index]
     }
@@ -27,11 +35,11 @@ class WordOfDayAssetDataSource @Inject constructor(
         return try {
             context.assets.open("wotd.json").bufferedReader().use { reader ->
                 val type = TypeToken.getParameterized(List::class.java, WordOfDay::class.java).type
-                gson.fromJson(reader, type)
+                gson.fromJson<List<WordOfDay>>(reader, type)?.filter { it.word.isNotBlank() }.orEmpty()
             }
         } catch (throwable: Throwable) {
             CrashReporter.logNonFatal(throwable)
-            throw throwable
+            emptyList()
         }
     }
 }

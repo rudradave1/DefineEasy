@@ -26,16 +26,16 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run unit tests
-        run: ./gradlew test --stacktrace
+        run: ./gradlew --no-daemon test --stacktrace
 
       - name: Run lint
-        run: ./gradlew lint --stacktrace
+        run: ./gradlew --no-daemon lint --stacktrace
 
       - name: Assemble debug APK
-        run: ./gradlew :app:assembleDebug --stacktrace
+        run: ./gradlew --no-daemon :app:assembleDebug --stacktrace
 
       - name: Build debug bundle
-        run: ./gradlew :app:bundleDebug --stacktrace
+        run: ./gradlew --no-daemon :app:bundleDebug --stacktrace
 
       - name: Upload test results
         uses: actions/upload-artifact@v4

@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStore
+import com.rudra.defineeasy.core.CrashReporter
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.IOException
 import javax.inject.Inject
@@ -27,7 +28,8 @@ class OnboardingPreferences @Inject constructor(
                 if (exception is IOException) {
                     emit(emptyPreferences())
                 } else {
-                    throw exception
+                    CrashReporter.logNonFatal(exception)
+                    emit(emptyPreferences())
                 }
             }
             .map { preferences ->
