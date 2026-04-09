@@ -5,8 +5,8 @@ import java.util.Properties
 // ---------------------------------------------------------------------------
 // Use explicit release values so the Play upload always reflects the current
 // build, even when the working tree changes without a new commit.
-val APP_VERSION_CODE = 29
-val APP_VERSION_NAME = "3.0.5"
+val APP_VERSION_CODE = 30
+val APP_VERSION_NAME = "3.0.6"
 
 // ---------------------------------------------------------------------------
 // Load local.properties for signing secrets
@@ -194,7 +194,6 @@ dependencies {
     // Kotlin Extensions and Coroutines support for Room
     implementation("androidx.room:room-ktx:2.8.4")
     implementation("androidx.sqlite:sqlite-ktx:2.6.2")
-    implementation("net.zetetic:sqlcipher-android:4.13.0")
 }
 
 // Allow references to generated code

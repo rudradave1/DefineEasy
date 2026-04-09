@@ -26,12 +26,10 @@ import com.rudra.defineeasy.feature_dictionary.domain.use_case.GetWordInfo
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.RateReviewedWordUseCase
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.ResetReviewProgressUseCase
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.ToggleFavoriteUseCase
-import com.rudra.defineeasy.security.DatabasePassphraseProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
@@ -154,21 +152,9 @@ object WordInfoModule {
     @Singleton
     fun provideWordInfoDatabase(
         app: Application,
-        gson: Gson,
-        passphraseProvider: DatabasePassphraseProvider
+        gson: Gson
     ): WordInfoDatabase {
-        val encryptedFactory = runCatching {
-            System.loadLibrary("sqlcipher")
-            SupportOpenHelperFactory(passphraseProvider.getOrCreatePassphrase())
-        }.onFailure { throwable ->
-            CrashReporter.logNonFatal(throwable)
-        }.getOrNull()
-
-        val primaryDatabase = buildWordInfoDatabase(
-            app = app,
-            gson = gson,
-            openHelperFactory = encryptedFactory
-        )
+        val primaryDatabase = buildWordInfoDatabase(app = app, gson = gson, openHelperFactory = null)
 
         return runCatching {
             primaryDatabase.openHelper.writableDatabase
@@ -177,8 +163,7 @@ object WordInfoModule {
             primaryDatabase.close()
             CrashReporter.logNonFatal(throwable)
 
-            // If the encrypted open path is unstable on a device under review,
-            // recreate the cache database so the app still launches cleanly.
+            // Recreate the cache database so the app still launches cleanly.
             app.deleteDatabase(WORD_DB_NAME)
 
             val fallbackDatabase = buildWordInfoDatabase(
