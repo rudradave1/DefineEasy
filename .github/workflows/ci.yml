@@ -10,6 +10,8 @@ jobs:
   test-and-lint:
     name: Test & Lint
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
     steps:
       - name: Checkout code
@@ -42,6 +44,7 @@ jobs:
         if: always()
         with:
           name: test-results
+          if-no-files-found: warn
           path: |
             **/build/reports/tests/
             **/build/test-results/
@@ -51,13 +54,17 @@ jobs:
         if: always()
         with:
           name: lint-results
-          path: '**/build/reports/lint-results*.html'
+          if-no-files-found: warn
+          path: |
+            **/build/reports/lint-results*.html
+            **/build/reports/lint-results*.xml
 
       - name: Upload Android build artifacts
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: android-build-artifacts
+          if-no-files-found: warn
           path: |
-            app/build/outputs/apk/debug/*.apk
-            app/build/outputs/bundle/debug/*.aab
+            app/build/outputs/apk/**/*.apk
+            app/build/outputs/bundle/**/*.aab
