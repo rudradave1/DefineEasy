@@ -2,6 +2,7 @@ package com.rudra.defineeasy.feature_dictionary.di
 
 import android.app.Application
 import androidx.room.Room
+import androidx.sqlite.db.SupportSQLiteOpenHelper
 import com.google.gson.Gson
 import com.rudra.defineeasy.core.CrashReporter
 import com.rudra.defineeasy.feature_dictionary.data.local.Converters
@@ -38,6 +39,8 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object WordInfoModule {
+    private const val WORD_DB_NAME = "word_db"
+
     @Provides
     @Singleton
     fun provideGson(): Gson {
@@ -154,22 +157,59 @@ object WordInfoModule {
         gson: Gson,
         passphraseProvider: DatabasePassphraseProvider
     ): WordInfoDatabase {
-        return try {
+        val encryptedFactory = runCatching {
             System.loadLibrary("sqlcipher")
-            Room.databaseBuilder(
-                app, WordInfoDatabase::class.java, "word_db"
-            ).addTypeConverter(Converters(GsonParser(gson)))
-                .addMigrations(WordInfoDatabase.MIGRATION_1_2)
-                .addMigrations(WordInfoDatabase.MIGRATION_2_3)
-                .addMigrations(WordInfoDatabase.MIGRATION_3_4)
-                .openHelperFactory(
-                    SupportOpenHelperFactory(passphraseProvider.getOrCreatePassphrase())
-                )
-                .build()
-        } catch (throwable: Throwable) {
+            SupportOpenHelperFactory(passphraseProvider.getOrCreatePassphrase())
+        }.onFailure { throwable ->
             CrashReporter.logNonFatal(throwable)
-            throw throwable
+        }.getOrNull()
+
+        val primaryDatabase = buildWordInfoDatabase(
+            app = app,
+            gson = gson,
+            openHelperFactory = encryptedFactory
+        )
+
+        return runCatching {
+            primaryDatabase.openHelper.writableDatabase
+            primaryDatabase
+        }.getOrElse { throwable ->
+            primaryDatabase.close()
+            CrashReporter.logNonFatal(throwable)
+
+            // If the encrypted open path is unstable on a device under review,
+            // recreate the cache database so the app still launches cleanly.
+            app.deleteDatabase(WORD_DB_NAME)
+
+            val fallbackDatabase = buildWordInfoDatabase(
+                app = app,
+                gson = gson,
+                openHelperFactory = null
+            )
+            fallbackDatabase.openHelper.writableDatabase
+            fallbackDatabase
         }
+    }
+
+    private fun buildWordInfoDatabase(
+        app: Application,
+        gson: Gson,
+        openHelperFactory: SupportSQLiteOpenHelper.Factory?
+    ): WordInfoDatabase {
+        val builder = Room.databaseBuilder(
+            app,
+            WordInfoDatabase::class.java,
+            WORD_DB_NAME
+        ).addTypeConverter(Converters(GsonParser(gson)))
+            .addMigrations(WordInfoDatabase.MIGRATION_1_2)
+            .addMigrations(WordInfoDatabase.MIGRATION_2_3)
+            .addMigrations(WordInfoDatabase.MIGRATION_3_4)
+
+        if (openHelperFactory != null) {
+            builder.openHelperFactory(openHelperFactory)
+        }
+
+        return builder.build()
     }
 
     @Provides

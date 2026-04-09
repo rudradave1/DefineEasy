@@ -31,6 +31,12 @@ jobs:
       - name: Run lint
         run: ./gradlew lint --stacktrace
 
+      - name: Assemble debug APK
+        run: ./gradlew :app:assembleDebug --stacktrace
+
+      - name: Build debug bundle
+        run: ./gradlew :app:bundleDebug --stacktrace
+
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
@@ -46,3 +52,12 @@ jobs:
         with:
           name: lint-results
           path: '**/build/reports/lint-results*.html'
+
+      - name: Upload Android build artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-build-artifacts
+          path: |
+            app/build/outputs/apk/debug/*.apk
+            app/build/outputs/bundle/debug/*.aab

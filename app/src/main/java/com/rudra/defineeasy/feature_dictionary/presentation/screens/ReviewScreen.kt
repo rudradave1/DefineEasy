@@ -17,11 +17,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -154,35 +158,44 @@ private fun ReviewScreenContent(
                     )
                 }
 
-                AnimatedContent(
-                    targetState = currentWord.word,
-                    transitionSpec = {
-                        (slideInHorizontally(
-                            animationSpec = tween(320),
-                            initialOffsetX = { it / 3 }
-                        ) + fadeIn(animationSpec = tween(280)))
-                            .togetherWith(
-                                slideOutHorizontally(
-                                    animationSpec = tween(250),
-                                    targetOffsetX = { -it / 5 }
-                                ) + fadeOut(animationSpec = tween(200))
-                            )
-                            .using(SizeTransform(clip = false))
-                    },
-                    label = "review_card_transition"
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f, fill = false)
                 ) {
-                    ReviewFlashCard(
-                        wordInfo = currentWord,
-                        isAnswerVisible = uiState.isAnswerVisible,
-                        onClick = onToggleAnswerVisibility,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                    )
+                    AnimatedContent(
+                        targetState = currentWord,
+                        transitionSpec = {
+                            (slideInHorizontally(
+                                animationSpec = tween(320),
+                                initialOffsetX = { it / 3 }
+                            ) + fadeIn(animationSpec = tween(280)))
+                                .togetherWith(
+                                    slideOutHorizontally(
+                                        animationSpec = tween(250),
+                                        targetOffsetX = { -it / 5 }
+                                    ) + fadeOut(animationSpec = tween(200))
+                                )
+                                .using(SizeTransform(clip = false))
+                        },
+                        label = "review_card_transition"
+                    ) { animatedWord ->
+                        ReviewFlashCard(
+                            wordInfo = animatedWord,
+                            isAnswerVisible = uiState.isAnswerVisible,
+                            onClick = onToggleAnswerVisibility,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 260.dp, max = 420.dp)
+                        )
+                    }
                 }
 
                 if (uiState.isAnswerVisible) {
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    ) {
                         OutlinedButton(
                             onClick = onRateAgain,
                             modifier = Modifier.fillMaxWidth(),
@@ -235,6 +248,7 @@ private fun ReviewFlashCard(
         animationSpec = tween(durationMillis = 500),
         label = "review_card_rotation"
     )
+    val answerScrollState = rememberScrollState()
     val primaryMeaning = wordInfo.meanings.firstOrNull()
     val primaryDefinition = primaryMeaning?.definitions?.firstOrNull()
 
@@ -275,7 +289,9 @@ private fun ReviewFlashCard(
                 }
             } else {
                 Column(
-                    modifier = Modifier.graphicsLayer { rotationY = 180f },
+                    modifier = Modifier
+                        .graphicsLayer { rotationY = 180f }
+                        .verticalScroll(answerScrollState),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {

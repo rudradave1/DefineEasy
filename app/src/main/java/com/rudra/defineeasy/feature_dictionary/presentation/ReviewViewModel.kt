@@ -25,10 +25,21 @@ class ReviewViewModel @Inject constructor(
     init {
         getDueReviewWordsUseCase()
             .onEach { dueWords ->
-                val nextIndex = _uiState.value.currentIndex.coerceAtMost(dueWords.lastIndex.coerceAtLeast(0))
-                _uiState.value = _uiState.value.copy(
+                val previousState = _uiState.value
+                val currentWordIndex = previousState.currentWord?.word?.let { currentWord ->
+                    dueWords.indexOfFirst { it.word == currentWord }
+                } ?: -1
+
+                val nextIndex = when {
+                    dueWords.isEmpty() -> 0
+                    currentWordIndex >= 0 -> currentWordIndex
+                    previousState.currentIndex > dueWords.lastIndex -> dueWords.lastIndex
+                    else -> previousState.currentIndex.coerceAtLeast(0)
+                }
+
+                _uiState.value = previousState.copy(
                     dueWords = dueWords,
-                    currentIndex = if (dueWords.isEmpty()) 0 else nextIndex,
+                    currentIndex = nextIndex,
                     isLoading = false,
                     isAnswerVisible = false
                 )
@@ -45,11 +56,11 @@ class ReviewViewModel @Inject constructor(
     fun rateCurrentWord(quality: Int) {
         val currentWord = _uiState.value.currentWord ?: return
         viewModelScope.launch {
-            rateReviewedWordUseCase(currentWord.word, quality)
             _uiState.value = _uiState.value.copy(
-                currentIndex = (_uiState.value.currentIndex + 1).coerceAtMost(_uiState.value.dueWords.size),
+                completedCount = _uiState.value.completedCount + 1,
                 isAnswerVisible = false
             )
+            rateReviewedWordUseCase(currentWord.word, quality)
         }
     }
 }
