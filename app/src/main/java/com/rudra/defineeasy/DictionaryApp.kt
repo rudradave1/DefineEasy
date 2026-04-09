@@ -5,6 +5,9 @@ import android.os.StrictMode
 import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import androidx.work.ListenableWorker
+import androidx.work.WorkerParameters
+import androidx.work.WorkerFactory
 import com.google.firebase.FirebaseApp
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rudra.defineeasy.core.CrashReporter
@@ -96,6 +99,18 @@ class DictionaryApp : Application(), Configuration.Provider {
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
-            .setWorkerFactory(workerFactory)
+            .setWorkerFactory(
+                runCatching { workerFactory }
+                    .getOrElse {
+                        Log.e(TAG, "Hilt workerFactory unavailable; using default factory", it)
+                        object : WorkerFactory() {
+                            override fun createWorker(
+                                appContext: android.content.Context,
+                                workerClassName: String,
+                                workerParameters: WorkerParameters
+                            ): ListenableWorker? = null
+                        }
+                    }
+            )
             .build()
 }

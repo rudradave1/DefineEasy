@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.GetDueReviewCountUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -14,5 +15,8 @@ class ReviewBadgeViewModel @Inject constructor(
     getDueReviewCountUseCase: GetDueReviewCountUseCase
 ) : ViewModel() {
     val dueCount: StateFlow<Int> = getDueReviewCountUseCase()
+        .catch {
+            emit(0)
+        }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0)
 }
