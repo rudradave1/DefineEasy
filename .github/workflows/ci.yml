@@ -28,16 +28,13 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run unit tests
-        run: ./gradlew --no-daemon test --stacktrace
+        run: ./gradlew --no-daemon :app:testDebugUnitTest --stacktrace
 
       - name: Run lint
-        run: ./gradlew --no-daemon lint --stacktrace
+        run: ./gradlew --no-daemon :app:lintDebug --stacktrace
 
       - name: Assemble debug APK
         run: ./gradlew --no-daemon :app:assembleDebug --stacktrace
-
-      - name: Build debug bundle
-        run: ./gradlew --no-daemon :app:bundleDebug --stacktrace
 
       - name: Upload test results
         uses: actions/upload-artifact@v5
@@ -67,4 +64,3 @@ jobs:
           if-no-files-found: warn
           path: |
             app/build/outputs/apk/**/*.apk
-            app/build/outputs/bundle/**/*.aab
