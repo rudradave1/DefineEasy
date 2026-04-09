@@ -27,17 +27,11 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Run unit tests
-        run: ./gradlew --no-daemon :app:testDebugUnitTest --stacktrace
-
-      - name: Run lint
-        run: ./gradlew --no-daemon :app:lintDebug --stacktrace
-
-      - name: Assemble debug APK
-        run: ./gradlew --no-daemon :app:assembleDebug --stacktrace
+      - name: Run CI Gradle tasks
+        run: ./gradlew --no-daemon :app:testDebugUnitTest :app:lintDebug :app:assembleDebug --stacktrace --console=plain
 
       - name: Upload test results
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: test-results
@@ -47,7 +41,7 @@ jobs:
             **/build/test-results/
 
       - name: Upload lint results
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: lint-results
@@ -57,7 +51,7 @@ jobs:
             **/build/reports/lint-results*.xml
 
       - name: Upload Android build artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: android-build-artifacts

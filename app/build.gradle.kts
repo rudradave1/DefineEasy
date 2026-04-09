@@ -16,6 +16,10 @@ val localProperties = Properties().apply {
     if (localPropsFile.exists()) load(localPropsFile.inputStream())
 }
 
+val releaseKeystorePath = System.getenv("KEYSTORE_FILE")
+    ?: localProperties.getProperty("keystore.file")
+    ?: "../upload-keystore.jks"
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -48,7 +52,7 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file("../upload-keystore.jks")
+            storeFile = file(releaseKeystorePath)
             storePassword = System.getenv("KEYSTORE_PASSWORD")
                 ?: localProperties.getProperty("keystore.password", "")
             keyAlias = "upload"
@@ -63,6 +67,9 @@ android {
             buildConfigField("boolean", "CRASHLYTICS_ENABLED", "false")
         }
         release {
+            check(signingConfigs.getByName("release").storeFile?.exists() == true) {
+                "Release keystore not found at $releaseKeystorePath. Set KEYSTORE_FILE env var or keystore.file in local.properties."
+            }
             signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             buildConfigField("boolean", "CRASHLYTICS_ENABLED", "true")
@@ -106,6 +113,18 @@ kotlin {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
+}
+
+val enableCrashlyticsUpload = providers
+    .gradleProperty("enableCrashlyticsUpload")
+    .orNull
+    ?.toBooleanStrictOrNull()
+    ?: false
+
+tasks.matching {
+    it.name == "uploadCrashlyticsMappingFileRelease"
+}.configureEach {
+    enabled = enableCrashlyticsUpload
 }
 
 dependencies {
