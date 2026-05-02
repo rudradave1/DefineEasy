@@ -18,6 +18,11 @@ Download
 
 • Intuitive UI: The app features a user-friendly interface built with Jetpack Compose for a seamless experience.
 
+<h1 align=center>Recent Updates 🚀</h1>
+
+• **Crashlytics Stability:** Fixed random crashes and improved stability with updated Proguard rules.
+• **Advertising ID:** Corrected AD_ID permission configuration for better Play Store compliance.
+• **Performance:** Internal optimizations and performance improvements.
 
 <h1 align=center>Screenshots 📸</h1>
 
