@@ -1,51 +1,40 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
-
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
-
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
-
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
-
 # Room
 -keep class androidx.room.** { *; }
 -keep @androidx.room.Entity class * { *; }
 
-# Retrofit / Gson
--keepattributes Signature
--keepattributes *Annotation*
+# Retrofit
+-keepattributes Signature, EnclosingMethod, InnerClasses, *Annotation*
 -keep class retrofit2.** { *; }
--keep class com.google.gson.** { *; }
--keep class com.rudra.defineeasy.feature_dictionary.data.remote.dto.** { *; }
+-dontwarn retrofit2.**
+-keep interface * {
+    @retrofit2.http.* <methods>;
+}
 
-##---------------Begin: proguard for Gson----------
--keepattributes Signature
--keepattributes *Annotation*
--dontwarn sun.misc.**
+# OkHttp
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-dontwarn javax.annotation.**
+-dontwarn org.conscrypt.**
+
+# Gson
+-keepattributes Signature, EnclosingMethod, InnerClasses, *Annotation*
 -keep class com.google.gson.** { *; }
--keep class * extends com.google.gson.TypeAdapter
 -keep class * implements com.google.gson.TypeAdapterFactory
 -keep class * implements com.google.gson.JsonSerializer
 -keep class * implements com.google.gson.JsonDeserializer
--keepclassmembers,allowobfuscation class * {
-  @com.google.gson.annotations.SerializedName <fields>;
+-keep class * extends com.google.gson.TypeAdapter
+-keepclassmembers class * {
+    @com.google.gson.annotations.SerializedName <fields>;
 }
--keep,allowobfuscation,allowshrinking class com.google.gson.reflect.TypeToken
--keep,allowobfuscation,allowshrinking class * extends com.google.gson.reflect.TypeToken
-##---------------End: proguard for Gson----------
+-keep class com.google.gson.reflect.TypeToken { *; }
+-keep class * extends com.google.gson.reflect.TypeToken
+
+# Feature Dictionary Models & DTOs
+# These MUST be kept to prevent ClassCastException (LinkedTreeMap)
+-keep class com.rudra.defineeasy.feature_dictionary.data.remote.dto.** { *; }
+-keep class com.rudra.defineeasy.feature_dictionary.data.local.entity.** { *; }
+-keep class com.rudra.defineeasy.feature_dictionary.domain.model.** { *; }
+-keep class com.rudra.defineeasy.feature_dictionary.data.collection.** { *; }
 
 # Hilt / Dagger
 -keep class dagger.hilt.** { *; }
@@ -60,37 +49,11 @@
 # Crashlytics
 -keep class com.google.firebase.crashlytics.** { *; }
 
+# Common Proguard attributes
+-keepattributes SourceFile,LineNumberTable
+
 # Optional OkHttp security providers
--dontwarn org.bouncycastle.jsse.BCSSLParameters
--dontwarn org.bouncycastle.jsse.BCSSLSocket
--dontwarn org.bouncycastle.jsse.provider.BouncyCastleJsseProvider
--dontwarn org.conscrypt.Conscrypt$Version
--dontwarn org.conscrypt.Conscrypt
--dontwarn org.openjsse.javax.net.ssl.SSLParameters
--dontwarn org.openjsse.javax.net.ssl.SSLSocket
--dontwarn org.openjsse.net.ssl.OpenJSSE
-
-# Retrofit
--keepattributes Signature
--keepattributes *Annotation*
--keep class retrofit2.** { *; }
--keepclassmembernames interface * {
-    @retrofit2.http.* <methods>;
-}
--dontwarn retrofit2.**
-
-# OkHttp
--dontwarn okhttp3.**
--dontwarn okio.**
-
-# Gson
--keepattributes Signature
--keepattributes EnclosingMethod
--keep class com.google.gson.** { *; }
--keep class * implements com.google.gson.TypeAdapterFactory
--keep class * implements com.google.gson.JsonSerializer
--keep class * implements com.google.gson.JsonDeserializer
-
-# Keep your data/model classes from obfuscation
--keep class com.rudra.defineeasy.data.** { *; }
--keep class com.rudra.defineeasy.domain.model.** { *; }
+-dontwarn org.bouncycastle.jsse.**
+-dontwarn org.conscrypt.**
+-dontwarn org.openjsse.**
+-dontwarn sun.misc.Unsafe

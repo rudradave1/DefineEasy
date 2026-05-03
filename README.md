@@ -20,7 +20,8 @@ Download
 
 <h1 align=center>Recent Updates 🚀</h1>
 
-• **Crashlytics Stability:** Fixed random crashes and improved stability with updated Proguard rules.
+• **Crashlytics Stability:** Fixed random crashes and improved stability with updated Proguard rules (v3.0.8).
+• **Model Preservation:** Ensured all DTOs and entities are preserved during obfuscation to prevent deserialization errors.
 • **Advertising ID:** Corrected AD_ID permission configuration for better Play Store compliance.
 • **Performance:** Internal optimizations and performance improvements.
 
