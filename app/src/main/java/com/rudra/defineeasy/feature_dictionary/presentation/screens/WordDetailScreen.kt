@@ -25,9 +25,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.BookmarkAdd
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -50,7 +52,13 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.material3.ListItem
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,6 +72,8 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rudra.defineeasy.R
+import com.rudra.defineeasy.core.util.TtsManager
+import com.rudra.defineeasy.feature_dictionary.domain.model.CollectionSummary
 import com.rudra.defineeasy.feature_dictionary.domain.model.Definition
 import com.rudra.defineeasy.feature_dictionary.domain.model.Meaning
 import com.rudra.defineeasy.feature_dictionary.domain.model.WordInfo
@@ -85,6 +95,7 @@ fun WordDetailScreenRoute(
     viewModel: WordDetailViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
+    val customCollections by viewModel.customCollections.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -100,10 +111,12 @@ fun WordDetailScreenRoute(
 
     WordDetailScreen(
         state = state,
+        customCollections = customCollections,
         snackbarHostState = snackbarHostState,
         onNavigateUp = onNavigateUp,
         onRetryClick = viewModel::refresh,
         onToggleFavorite = viewModel::toggleFavorite,
+        onAddToCollection = viewModel::addWordToCollection,
         onWordSelected = onWordSelected
     )
 }
@@ -112,17 +125,24 @@ fun WordDetailScreenRoute(
 @Composable
 fun WordDetailScreen(
     state: WordDetailState,
+    customCollections: List<CollectionSummary>,
     snackbarHostState: SnackbarHostState,
     onNavigateUp: () -> Unit,
     onRetryClick: () -> Unit,
     onToggleFavorite: () -> Unit,
+    onAddToCollection: (Int) -> Unit,
     onWordSelected: (String) -> Unit
 ) {
     val context = LocalContext.current
     val mediaPlayer = remember { MediaPlayer() }
+    val ttsManager = remember { TtsManager(context) }
+    var showCollectionDialog by remember { mutableStateOf(false) }
 
-    DisposableEffect(mediaPlayer) {
-        onDispose { mediaPlayer.release() }
+    DisposableEffect(mediaPlayer, ttsManager) {
+        onDispose {
+            mediaPlayer.release()
+            ttsManager.shutdown()
+        }
     }
     BackHandler(onBack = onNavigateUp)
 
@@ -147,6 +167,12 @@ fun WordDetailScreen(
                 },
                 actions = {
                     state.wordInfo?.let { wordInfo ->
+                        IconButton(onClick = { showCollectionDialog = true }) {
+                            Icon(
+                                imageVector = Icons.Default.BookmarkAdd,
+                                contentDescription = "Add to collection"
+                            )
+                        }
                         IconButton(onClick = { shareWord(context, wordInfo) }) {
                             Icon(
                                 imageVector = Icons.Filled.Share,
@@ -169,6 +195,16 @@ fun WordDetailScreen(
             }
         }
     ) { paddingValues ->
+        if (showCollectionDialog) {
+            AddToCollectionDialog(
+                collections = customCollections,
+                onDismiss = { showCollectionDialog = false },
+                onCollectionSelected = {
+                    onAddToCollection(it)
+                    showCollectionDialog = false
+                }
+            )
+        }
         when {
             state.isLoading && state.wordInfo == null -> {
                 Box(
@@ -189,7 +225,13 @@ fun WordDetailScreen(
                     WordDetailContent(
                         wordInfo = state.wordInfo,
                         modifier = Modifier.padding(paddingValues),
-                        onPlayAudio = { playAudio(mediaPlayer, state.wordInfo.audioUrl) },
+                        onPlayAudio = {
+                            if (state.wordInfo.audioUrl.isNotBlank()) {
+                                playAudio(mediaPlayer, state.wordInfo.audioUrl)
+                            } else {
+                                ttsManager.speak(state.wordInfo.word)
+                            }
+                        },
                         onRelatedWordClick = onWordSelected
                     )
                 }
@@ -258,7 +300,7 @@ private fun WordDetailContent(
                 }
                 IconButton(
                     onClick = onPlayAudio,
-                    enabled = wordInfo.audioUrl.isNotBlank()
+                    enabled = true
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.VolumeUp,
@@ -451,6 +493,37 @@ private fun DetailActionBar(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddToCollectionDialog(
+    collections: List<CollectionSummary>,
+    onDismiss: () -> Unit,
+    onCollectionSelected: (Int) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add to Collection") },
+        text = {
+            if (collections.isEmpty()) {
+                Text("No custom collections found. Create one in the Collections tab!")
+            } else {
+                LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
+                    items(collections) { collection ->
+                        ListItem(
+                            headlineContent = { Text("Collection ${collection.id}") },
+                            modifier = Modifier.clickable { onCollectionSelected(collection.id.toInt()) }
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
+}
+
 private fun playAudio(mediaPlayer: MediaPlayer, audioUrl: String) {
     if (audioUrl.isBlank()) return
     runCatching {
@@ -509,10 +582,12 @@ private fun WordDetailScreenPreview() {
                     nextReviewDateEpochDay = 0
                 )
             ),
+            customCollections = emptyList(),
             snackbarHostState = SnackbarHostState(),
             onNavigateUp = {},
             onRetryClick = {},
             onToggleFavorite = {},
+            onAddToCollection = {},
             onWordSelected = {}
         )
     }

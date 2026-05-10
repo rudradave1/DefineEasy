@@ -2,6 +2,7 @@ package com.rudra.defineeasy.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.LibraryBooks
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Search
@@ -34,5 +35,10 @@ enum class TopLevelDestination(
         route = "collections",
         icon = Icons.AutoMirrored.Filled.LibraryBooks,
         labelRes = R.string.collections_tab
+    ),
+    Progress(
+        route = "progress",
+        icon = Icons.Default.BarChart,
+        labelRes = R.string.progress_tab
     )
 }

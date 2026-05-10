@@ -116,4 +116,11 @@
     <string name="settings_privacy_policy">Privacy Policy</string>
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
+    <string name="progress_tab">Progress</string>
+    <string name="mastered_words">Mastered</string>
+    <string name="learning_words">Learning</string>
+    <string name="recent_reviews">Recent Reviews</string>
+    <string name="create_collection">Create Collection</string>
+    <string name="collection_name">Collection name</string>
+    <string name="collection_name_placeholder">e.g. TOEFL Vocabulary</string>
 </resources>

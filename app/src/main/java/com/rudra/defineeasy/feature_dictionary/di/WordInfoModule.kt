@@ -26,6 +26,9 @@ import com.rudra.defineeasy.feature_dictionary.domain.use_case.GetWordInfo
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.RateReviewedWordUseCase
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.ResetReviewProgressUseCase
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.ToggleFavoriteUseCase
+import com.rudra.defineeasy.feature_dictionary.data.local.WordInfoDao
+import com.rudra.defineeasy.feature_dictionary.domain.use_case.AddWordToCollectionUseCase
+import com.rudra.defineeasy.feature_dictionary.domain.use_case.GetCustomCollectionsUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -141,6 +144,24 @@ object WordInfoModule {
 
     @Provides
     @Singleton
+    fun provideGetCustomCollectionsUseCase(repository: CollectionRepository): GetCustomCollectionsUseCase {
+        return GetCustomCollectionsUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAddWordToCollectionUseCase(repository: CollectionRepository): AddWordToCollectionUseCase {
+        return AddWordToCollectionUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideWordInfoDao(db: WordInfoDatabase): WordInfoDao {
+        return db.dao
+    }
+
+    @Provides
+    @Singleton
     fun provideWordInfoRepository(
         db: WordInfoDatabase,
         api: DictionaryApi
@@ -197,6 +218,7 @@ object WordInfoModule {
             .addMigrations(WordInfoDatabase.MIGRATION_1_2)
             .addMigrations(WordInfoDatabase.MIGRATION_2_3)
             .addMigrations(WordInfoDatabase.MIGRATION_3_4)
+            .addMigrations(WordInfoDatabase.MIGRATION_4_5)
 
         if (openHelperFactory != null) {
             builder.openHelperFactory(openHelperFactory)

@@ -8,6 +8,7 @@ sealed class DefineEasyDestination(val route: String) {
     data object Review : DefineEasyDestination("review")
     data object Collections : DefineEasyDestination("collections")
     data object Settings : DefineEasyDestination("settings")
+    data object Progress : DefineEasyDestination("progress")
     data object CollectionWords : DefineEasyDestination("collections/{collectionId}") {
         fun createRoute(collectionId: String): String {
             return "collections/${Uri.encode(collectionId)}"

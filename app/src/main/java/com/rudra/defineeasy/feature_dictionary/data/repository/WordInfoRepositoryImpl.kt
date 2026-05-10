@@ -3,6 +3,7 @@ package com.rudra.defineeasy.feature_dictionary.data.repository
 import com.rudra.defineeasy.core.CrashReporter
 import com.rudra.defineeasy.core.util.Resource
 import com.rudra.defineeasy.feature_dictionary.data.local.WordInfoDao
+import com.rudra.defineeasy.feature_dictionary.data.local.entity.ReviewHistoryEntity
 import com.rudra.defineeasy.feature_dictionary.data.local.entity.SearchHistoryEntity
 import com.rudra.defineeasy.feature_dictionary.data.local.entity.WordInfoEntity
 import com.rudra.defineeasy.feature_dictionary.data.remote.DictionaryApi
@@ -139,6 +140,13 @@ class WordInfoRepositoryImpl(
                 intervalDays = updatedReview.intervalDays,
                 easinessFactor = updatedReview.easinessFactor,
                 nextReviewDateEpochDay = updatedReview.nextReviewDateEpochDay
+            )
+        )
+        dao.insertReviewHistory(
+            ReviewHistoryEntity(
+                word = word,
+                rating = quality,
+                timestamp = System.currentTimeMillis()
             )
         )
     }

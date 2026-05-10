@@ -5,6 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rudra.defineeasy.core.util.Resource
 import com.rudra.defineeasy.feature_dictionary.domain.model.WordInfo
+import com.rudra.defineeasy.feature_dictionary.domain.model.CollectionSummary
+import com.rudra.defineeasy.feature_dictionary.domain.use_case.AddWordToCollectionUseCase
+import com.rudra.defineeasy.feature_dictionary.domain.use_case.GetCustomCollectionsUseCase
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.IsWordFavoritedUseCase
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.GetSavedWordInfo
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.GetWordInfo
@@ -12,6 +15,8 @@ import com.rudra.defineeasy.feature_dictionary.domain.use_case.ToggleFavoriteUse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -24,13 +29,18 @@ class WordDetailViewModel @Inject constructor(
     private val getWordInfo: GetWordInfo,
     private val getSavedWordInfo: GetSavedWordInfo,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
-    private val isWordFavoritedUseCase: IsWordFavoritedUseCase
+    private val isWordFavoritedUseCase: IsWordFavoritedUseCase,
+    private val getCustomCollectionsUseCase: GetCustomCollectionsUseCase,
+    private val addWordToCollectionUseCase: AddWordToCollectionUseCase
 ) : ViewModel() {
 
     private val selectedWord = savedStateHandle.get<String>("word").orEmpty()
 
     private val _state = androidx.compose.runtime.mutableStateOf(WordDetailState())
     val state: androidx.compose.runtime.State<WordDetailState> = _state
+
+    private val _customCollections = MutableStateFlow<List<CollectionSummary>>(emptyList())
+    val customCollections: StateFlow<List<CollectionSummary>> = _customCollections
 
     private val _eventFlow = MutableSharedFlow<UIEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
@@ -39,6 +49,20 @@ class WordDetailViewModel @Inject constructor(
     init {
         observeFavoriteState()
         refresh()
+        loadCustomCollections()
+    }
+
+    private fun loadCustomCollections() {
+        getCustomCollectionsUseCase()
+            .onEach { _customCollections.value = it }
+            .launchIn(viewModelScope)
+    }
+
+    fun addWordToCollection(collectionId: Int) {
+        viewModelScope.launch {
+            addWordToCollectionUseCase(collectionId, selectedWord)
+            _eventFlow.emit(UIEvent.ShowSnackbar("Added to collection"))
+        }
     }
 
     fun refresh() {

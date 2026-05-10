@@ -14,12 +14,19 @@ Download
 
 • Search: Users can easily search for words, and DefineEasy will provide comprehensive definitions.
 
+• Spaced Repetition (SM-2): Master new vocabulary efficiently using the scientifically-backed SM-2 spaced repetition algorithm.
+
 • Offline Access: Once you've searched for a word, you can access its definition offline.
 
 • Intuitive UI: The app features a user-friendly interface built with Jetpack Compose for a seamless experience.
 
 <h1 align=center>Recent Updates 🚀</h1>
 
+• **Major Feature Release (v3.1.0):**
+    - **Custom Collections:** Users can now create and manage their own personalized word sets.
+    - **Offline Pronunciation:** Integrated Android TTS for word pronunciations when offline.
+    - **Learning Analytics:** New "Progress" tab with stats for Mastered and Learning words.
+    - **Spaced Repetition:** Improved SM-2 scheduling and review history tracking.
 • **Crashlytics Stability:** Fixed random crashes and improved stability with updated Proguard rules (v3.0.8).
 • **Model Preservation:** Ensured all DTOs and entities are preserved during obfuscation to prevent deserialization errors.
 • **Advertising ID:** Corrected AD_ID permission configuration for better Play Store compliance.
@@ -40,6 +47,8 @@ Download
 • MVVM Architecture: The app is built using the Model-View-ViewModel architectural pattern for clear separation of concerns.
 
 • Dagger Hilt: Dagger Hilt is used for dependency injection, ensuring a maintainable and testable codebase.
+
+• SM-2 Algorithm: Implements the SuperMemo-2 algorithm for optimized flashcard scheduling and long-term retention.
 
 • Room Database: Room is employed for efficient local data storage, enabling offline access to definitions.
 

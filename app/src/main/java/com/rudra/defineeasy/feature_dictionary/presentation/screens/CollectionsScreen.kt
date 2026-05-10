@@ -19,21 +19,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.LibraryBooks
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -46,21 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rudra.defineeasy.R
 import com.rudra.defineeasy.feature_dictionary.domain.model.CollectionIds
-import com.rudra.defineeasy.feature_dictionary.presentation.CollectionCardUiModel
-import com.rudra.defineeasy.feature_dictionary.presentation.CollectionsUiState
-import com.rudra.defineeasy.feature_dictionary.presentation.CollectionsViewModel
-import com.rudra.defineeasy.feature_dictionary.presentation.collectionUiMetadata
-import com.rudra.defineeasy.ui.theme.BusinessGradientEnd
-import com.rudra.defineeasy.ui.theme.BusinessGradientStart
-import com.rudra.defineeasy.ui.theme.CatGradientEnd
-import com.rudra.defineeasy.ui.theme.CatGradientStart
-import com.rudra.defineeasy.ui.theme.DefineEasyTheme
-import com.rudra.defineeasy.ui.theme.GeneralGradientEnd
-import com.rudra.defineeasy.ui.theme.GeneralGradientStart
-import com.rudra.defineeasy.ui.theme.GreGradientEnd
-import com.rudra.defineeasy.ui.theme.GreGradientStart
-import com.rudra.defineeasy.ui.theme.UpscGradientEnd
-import com.rudra.defineeasy.ui.theme.UpscGradientStart
+import com.rudra.defineeasy.feature_dictionary.presentation.*
+import com.rudra.defineeasy.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,6 +44,7 @@ fun CollectionsScreen(
     viewModel: CollectionsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var showCreateDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -80,8 +56,23 @@ fun CollectionsScreen(
                     )
                 }
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { showCreateDialog = true }) {
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.create_collection))
+            }
         }
     ) { paddingValues ->
+        if (showCreateDialog) {
+            CreateCollectionDialog(
+                onDismiss = { showCreateDialog = false },
+                onConfirm = { name ->
+                    viewModel.onEvent(CollectionsEvent.CreateCollection(name))
+                    showCreateDialog = false
+                }
+            )
+        }
+
         when (val state = uiState) {
             CollectionsUiState.Loading -> {
                 Box(
@@ -123,6 +114,41 @@ fun CollectionsScreen(
             }
         }
     }
+}
+
+@Composable
+fun CreateCollectionDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.create_collection)) },
+        text = {
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text(stringResource(R.string.collection_name)) },
+                placeholder = { Text(stringResource(R.string.collection_name_placeholder)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { if (name.isNotBlank()) onConfirm(name) },
+                enabled = name.isNotBlank()
+            ) {
+                Text(stringResource(R.string.confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
 }
 
 @Composable

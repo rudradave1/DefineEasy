@@ -15,6 +15,7 @@ import androidx.navigation.NavHostController
 import com.rudra.defineeasy.feature_dictionary.presentation.screens.CollectionWordsScreenRoute
 import com.rudra.defineeasy.feature_dictionary.presentation.screens.CollectionsScreen
 import com.rudra.defineeasy.feature_dictionary.presentation.screens.FavoritesScreen
+import com.rudra.defineeasy.feature_dictionary.presentation.screens.ProgressScreen
 import com.rudra.defineeasy.feature_dictionary.presentation.screens.ReviewScreen
 import com.rudra.defineeasy.feature_dictionary.presentation.screens.SearchScreen
 import com.rudra.defineeasy.feature_dictionary.presentation.screens.WordDetailScreenRoute
@@ -66,6 +67,9 @@ fun DefineEasyNavGraph(
         }
         composable(route = DefineEasyDestination.Review.route) {
             ReviewScreen(onNavigateUp = { navController.navigateUp() })
+        }
+        composable(route = DefineEasyDestination.Progress.route) {
+            ProgressScreen()
         }
         composable(route = DefineEasyDestination.Collections.route) {
             CollectionsScreen(

@@ -4,6 +4,10 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
+import com.rudra.defineeasy.feature_dictionary.data.local.entity.CollectionWordCrossRef
+import com.rudra.defineeasy.feature_dictionary.data.local.entity.CustomCollectionEntity
+import com.rudra.defineeasy.feature_dictionary.data.local.entity.ReviewHistoryEntity
 import com.rudra.defineeasy.feature_dictionary.data.local.entity.SearchHistoryEntity
 import com.rudra.defineeasy.feature_dictionary.data.local.entity.WordInfoEntity
 import kotlinx.coroutines.flow.Flow
@@ -11,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface WordInfoDao {
 
+    // --- Existing methods ---
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWordInfos(infos: List<WordInfoEntity>)
 
@@ -84,4 +89,34 @@ interface WordInfoDao {
         """
     )
     suspend fun resetReviewProgress()
+
+    // --- New Review History methods ---
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertReviewHistory(history: ReviewHistoryEntity)
+
+    @Query("SELECT * FROM ReviewHistoryEntity ORDER BY timestamp DESC")
+    fun getReviewHistory(): Flow<List<ReviewHistoryEntity>>
+
+    @Query("SELECT COUNT(*) FROM ReviewHistoryEntity WHERE timestamp >= :startTime")
+    fun getReviewCountSince(startTime: Long): Flow<Int>
+
+    // --- New Custom Collection methods ---
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCustomCollection(collection: CustomCollectionEntity): Long
+
+    @Query("SELECT * FROM CustomCollectionEntity ORDER BY createdAt DESC")
+    fun getCustomCollections(): Flow<List<CustomCollectionEntity>>
+
+    @Query("DELETE FROM CustomCollectionEntity WHERE id = :collectionId")
+    suspend fun deleteCustomCollection(collectionId: Int)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCollectionWordCrossRef(crossRef: CollectionWordCrossRef)
+
+    @Query("DELETE FROM CollectionWordCrossRef WHERE collectionId = :collectionId AND word = :word")
+    suspend fun deleteCollectionWordCrossRef(collectionId: Int, word: String)
+
+    @Transaction
+    @Query("SELECT word FROM CollectionWordCrossRef WHERE collectionId = :collectionId")
+    fun getWordsForCollection(collectionId: Int): Flow<List<String>>
 }
