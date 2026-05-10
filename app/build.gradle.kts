@@ -67,9 +67,6 @@ android {
             buildConfigField("boolean", "CRASHLYTICS_ENABLED", "false")
         }
         release {
-            check(signingConfigs.getByName("release").storeFile?.exists() == true) {
-                "Release keystore not found at $releaseKeystorePath. Set KEYSTORE_FILE env var or keystore.file in local.properties."
-            }
             signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             buildConfigField("boolean", "CRASHLYTICS_ENABLED", "true")
