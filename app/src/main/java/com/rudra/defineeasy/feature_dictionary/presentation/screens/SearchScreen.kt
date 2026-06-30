@@ -87,6 +87,7 @@ import com.rudra.defineeasy.feature_dictionary.presentation.WordOfDayViewModel
 import com.rudra.defineeasy.feature_dictionary.presentation.components.SearchHistoryComponent
 import com.rudra.defineeasy.feature_dictionary.presentation.components.WordInfoItem
 import com.rudra.defineeasy.navigation.ReviewBadgeViewModel
+import com.rudra.defineeasy.preferences.StreakPreferences
 import com.rudra.defineeasy.ui.theme.DefineEasyTheme
 import com.rudra.defineeasy.ui.theme.ReviewAmber
 import com.rudra.defineeasy.ui.theme.StreakOrange
@@ -102,9 +103,11 @@ fun SearchScreen(
     contentPadding: PaddingValues,
     onOpenSettings: () -> Unit,
     onOpenReview: () -> Unit,
+    onOpenQuiz: () -> Unit = {},
     viewModel: WordInfoViewModel = hiltViewModel(),
     wordOfDayViewModel: WordOfDayViewModel = hiltViewModel(),
-    reviewBadgeViewModel: ReviewBadgeViewModel = hiltViewModel()
+    reviewBadgeViewModel: ReviewBadgeViewModel = hiltViewModel(),
+    streakProvider: com.rudra.defineeasy.feature_dictionary.presentation.SearchStreakProvider = hiltViewModel()
 ) {
     val state = viewModel.state.value
     val wordOfDayState = wordOfDayViewModel.uiState.value
@@ -114,6 +117,7 @@ fun SearchScreen(
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val isOffline = rememberOfflineState(context)
+    val streakState by streakProvider.streakState().collectAsState(initial = com.rudra.defineeasy.preferences.StreakState())
 
     LaunchedEffect(Unit) {
         viewModel.eventFlow.collectLatest { event ->
@@ -182,8 +186,10 @@ fun SearchScreen(
                 SearchHeroSection(
                     wordOfDayState = wordOfDayState,
                     dueCount = dueCount,
+                    streakCount = streakState.currentStreak,
                     onOpenWord = { word -> onWordSelected(word) },
-                    onOpenReview = onOpenReview
+                    onOpenReview = onOpenReview,
+                    onOpenQuiz = onOpenQuiz
                 )
 
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -285,8 +291,10 @@ fun SearchScreen(
 private fun SearchHeroSection(
     wordOfDayState: WordOfDayUiState,
     dueCount: Int,
+    streakCount: Int,
     onOpenWord: (String) -> Unit,
-    onOpenReview: () -> Unit
+    onOpenReview: () -> Unit,
+    onOpenQuiz: () -> Unit = {}
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         WordOfDayHeroCard(
@@ -299,7 +307,7 @@ private fun SearchHeroSection(
         ) {
             StreakCard(
                 modifier = Modifier.weight(1f),
-                streakCount = 0,
+                streakCount = streakCount,
                 onClick = onOpenReview
             )
             AnimatedVisibility(visible = dueCount > 0) {
@@ -310,6 +318,7 @@ private fun SearchHeroSection(
                 )
             }
         }
+        QuizStartCard(onClick = onOpenQuiz)
     }
 }
 
@@ -504,6 +513,43 @@ private fun DueReviewBadge(
 }
 
 @Composable
+private fun QuizStartCard(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = modifier.fillMaxWidth().clickable(onClick = onClick),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(
+                    text = stringResource(R.string.start_quiz),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = stringResource(R.string.quiz_pick_definition),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                )
+            }
+            Text(text = "🧠", fontSize = 28.sp)
+        }
+    }
+}
+
+@Composable
 private fun EmptySearchState(query: String) {
     Column(
         modifier = Modifier
@@ -657,6 +703,7 @@ private fun SearchHeroSectionPreview() {
                 isLoading = false
             ),
             dueCount = 6,
+            streakCount = 5,
             onOpenWord = {},
             onOpenReview = {}
         )

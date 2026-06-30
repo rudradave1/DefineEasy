@@ -30,6 +30,26 @@ class CollectionRepositoryImpl @Inject constructor(
                 wordCount = assetDataSource.getCollectionWords(CollectionIds.CAT).size
             ),
             CollectionSummary(
+                id = CollectionIds.GRE,
+                wordCount = assetDataSource.getCollectionWords(CollectionIds.GRE).size
+            ),
+            CollectionSummary(
+                id = CollectionIds.IELTS,
+                wordCount = assetDataSource.getCollectionWords(CollectionIds.IELTS).size
+            ),
+            CollectionSummary(
+                id = CollectionIds.SSC,
+                wordCount = assetDataSource.getCollectionWords(CollectionIds.SSC).size
+            ),
+            CollectionSummary(
+                id = CollectionIds.TOEFL,
+                wordCount = assetDataSource.getCollectionWords(CollectionIds.TOEFL).size
+            ),
+            CollectionSummary(
+                id = CollectionIds.GATE,
+                wordCount = assetDataSource.getCollectionWords(CollectionIds.GATE).size
+            ),
+            CollectionSummary(
                 id = CollectionIds.BUSINESS,
                 wordCount = assetDataSource.getCollectionWords(CollectionIds.BUSINESS).size
             ),

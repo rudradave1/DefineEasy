@@ -2,6 +2,7 @@ package com.rudra.defineeasy.feature_dictionary.presentation.screens
 
 import android.content.Intent
 import android.media.MediaPlayer
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.BookmarkAdd
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
@@ -72,6 +74,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rudra.defineeasy.R
+import com.rudra.defineeasy.core.CrashReporter
 import com.rudra.defineeasy.core.util.TtsManager
 import com.rudra.defineeasy.feature_dictionary.domain.model.CollectionSummary
 import com.rudra.defineeasy.feature_dictionary.domain.model.Definition
@@ -79,6 +82,7 @@ import com.rudra.defineeasy.feature_dictionary.domain.model.Meaning
 import com.rudra.defineeasy.feature_dictionary.domain.model.WordInfo
 import com.rudra.defineeasy.feature_dictionary.presentation.WordDetailState
 import com.rudra.defineeasy.feature_dictionary.presentation.WordDetailViewModel
+import com.rudra.defineeasy.feature_dictionary.presentation.components.WordCardRenderer
 import com.rudra.defineeasy.ui.theme.DefineEasyTheme
 import com.rudra.defineeasy.ui.theme.PartOfSpeechAdjective
 import com.rudra.defineeasy.ui.theme.PartOfSpeechAdverb
@@ -171,6 +175,15 @@ fun WordDetailScreen(
                             Icon(
                                 imageVector = Icons.Default.BookmarkAdd,
                                 contentDescription = "Add to collection"
+                            )
+                        }
+                        IconButton(onClick = {
+                            val bitmap = WordCardRenderer.renderToBitmap(wordInfo)
+                            WordCardRenderer.shareCard(context, bitmap)
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Image,
+                                contentDescription = "Share word card"
                             )
                         }
                         IconButton(onClick = { shareWord(context, wordInfo) }) {
@@ -526,11 +539,15 @@ fun AddToCollectionDialog(
 
 private fun playAudio(mediaPlayer: MediaPlayer, audioUrl: String) {
     if (audioUrl.isBlank()) return
-    runCatching {
+    try {
         mediaPlayer.reset()
         mediaPlayer.setDataSource(audioUrl)
         mediaPlayer.prepare()
         mediaPlayer.start()
+    } catch (e: Exception) {
+        mediaPlayer.reset()
+        Log.w("WordDetailScreen", "Failed to play audio for URL: $audioUrl", e)
+        CrashReporter.logNonFatal(e)
     }
 }
 

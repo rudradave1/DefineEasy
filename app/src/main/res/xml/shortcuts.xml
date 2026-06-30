@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="search_word"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_search_label"
+        android:shortcutLongLabel="@string/shortcut_search_long_label">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.rudra.defineeasy"
+            android:targetClass="com.rudra.defineeasy.MainActivity" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="word_of_day"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_wotd_label"
+        android:shortcutLongLabel="@string/shortcut_wotd_long_label">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.rudra.defineeasy"
+            android:targetClass="com.rudra.defineeasy.MainActivity">
+            <extra
+                android:name="extra_open_tab"
+                android:value="wotd" />
+        </intent>
+    </shortcut>
+    <shortcut
+        android:shortcutId="start_review"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_review_label"
+        android:shortcutLongLabel="@string/shortcut_review_long_label">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.rudra.defineeasy"
+            android:targetClass="com.rudra.defineeasy.MainActivity">
+            <extra
+                android:name="extra_open_tab"
+                android:value="review" />
+        </intent>
+    </shortcut>
+</shortcuts>

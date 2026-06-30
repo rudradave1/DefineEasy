@@ -16,6 +16,7 @@ import com.rudra.defineeasy.feature_dictionary.presentation.screens.CollectionWo
 import com.rudra.defineeasy.feature_dictionary.presentation.screens.CollectionsScreen
 import com.rudra.defineeasy.feature_dictionary.presentation.screens.FavoritesScreen
 import com.rudra.defineeasy.feature_dictionary.presentation.screens.ProgressScreen
+import com.rudra.defineeasy.feature_dictionary.presentation.screens.QuizScreen
 import com.rudra.defineeasy.feature_dictionary.presentation.screens.ReviewScreen
 import com.rudra.defineeasy.feature_dictionary.presentation.screens.SearchScreen
 import com.rudra.defineeasy.feature_dictionary.presentation.screens.WordDetailScreenRoute
@@ -54,6 +55,9 @@ fun DefineEasyNavGraph(
                 },
                 onOpenReview = {
                     navController.navigate(DefineEasyDestination.Review.route)
+                },
+                onOpenQuiz = {
+                    navController.navigate(DefineEasyDestination.Quiz.route)
                 }
             )
         }
@@ -80,6 +84,9 @@ fun DefineEasyNavGraph(
         }
         composable(route = DefineEasyDestination.Settings.route) {
             SettingsScreen(onNavigateUp = { navController.navigateUp() })
+        }
+        composable(route = DefineEasyDestination.Quiz.route) {
+            QuizScreen(onNavigateUp = { navController.navigateUp() })
         }
         composable(
             route = DefineEasyDestination.CollectionWords.route,

@@ -15,6 +15,7 @@ class MainActivity : ComponentActivity() {
     companion object {
         const val EXTRA_OPEN_TAB = "extra_open_tab"
         const val TAB_REVIEW = "review"
+        const val TAB_WOTD = "wotd"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

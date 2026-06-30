@@ -4,7 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.GetDueReviewWordsUseCase
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.RateReviewedWordUseCase
+import com.rudra.defineeasy.preferences.ReviewPromptPreferences
+import com.rudra.defineeasy.preferences.StreakPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.LocalDate
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +19,9 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class ReviewViewModel @Inject constructor(
     getDueReviewWordsUseCase: GetDueReviewWordsUseCase,
-    private val rateReviewedWordUseCase: RateReviewedWordUseCase
+    private val rateReviewedWordUseCase: RateReviewedWordUseCase,
+    private val streakPreferences: StreakPreferences,
+    private val reviewPromptPreferences: ReviewPromptPreferences
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ReviewUiState())
@@ -61,6 +66,8 @@ class ReviewViewModel @Inject constructor(
                 isAnswerVisible = false
             )
             rateReviewedWordUseCase(currentWord.word, quality)
+            streakPreferences.recordReview(LocalDate.now().toEpochDay())
+            reviewPromptPreferences.incrementReviewCount()
         }
     }
 }

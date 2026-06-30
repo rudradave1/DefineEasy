@@ -31,7 +31,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DefineEasyApp() {
+fun DefineEasyApp(initialSearchWord: String? = null) {
     val onboardingViewModel: OnboardingViewModel = hiltViewModel()
     val onboardingState by onboardingViewModel.uiState.collectAsState()
     if (onboardingState.isLoading) {
@@ -63,14 +63,31 @@ fun DefineEasyApp() {
     LaunchedEffect(Unit) {
         val activity = context as? Activity ?: return@LaunchedEffect
         val requestedTab = activity.intent?.getStringExtra(com.rudra.defineeasy.MainActivity.EXTRA_OPEN_TAB)
-        if (requestedTab == com.rudra.defineeasy.MainActivity.TAB_REVIEW) {
-            navController.navigate(DefineEasyDestination.Review.route) {
-                launchSingleTop = true
-                popUpTo(navController.graph.startDestinationId) {
-                    saveState = true
+        when (requestedTab) {
+            com.rudra.defineeasy.MainActivity.TAB_REVIEW -> {
+                navController.navigate(DefineEasyDestination.Review.route) {
+                    launchSingleTop = true
+                    popUpTo(navController.graph.startDestinationId) {
+                        saveState = true
+                    }
                 }
             }
-            activity.intent?.removeExtra(com.rudra.defineeasy.MainActivity.EXTRA_OPEN_TAB)
+            com.rudra.defineeasy.MainActivity.TAB_WOTD -> {
+                wordOfDayState.wordOfDay?.let { wotd ->
+                    navController.navigate(DefineEasyDestination.WordDetail.createRoute(wotd.word)) {
+                        launchSingleTop = true
+                    }
+                }
+            }
+        }
+        activity.intent?.removeExtra(com.rudra.defineeasy.MainActivity.EXTRA_OPEN_TAB)
+    }
+
+    LaunchedEffect(initialSearchWord) {
+        if (!initialSearchWord.isNullOrBlank()) {
+            navController.navigate(DefineEasyDestination.WordDetail.createRoute(initialSearchWord)) {
+                launchSingleTop = true
+            }
         }
     }
 

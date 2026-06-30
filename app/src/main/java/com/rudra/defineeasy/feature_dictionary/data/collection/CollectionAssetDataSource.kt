@@ -18,7 +18,12 @@ class CollectionAssetDataSource @Inject constructor(
         CollectionIds.UPSC to "collection_upsc.json",
         CollectionIds.CAT to "collection_cat.json",
         CollectionIds.BUSINESS to "collection_business.json",
-        CollectionIds.CONFUSED to "collection_confused.json"
+        CollectionIds.CONFUSED to "collection_confused.json",
+        CollectionIds.GRE to "collection_gre.json",
+        CollectionIds.SSC to "collection_ssc.json",
+        CollectionIds.IELTS to "collection_ielts.json",
+        CollectionIds.TOEFL to "collection_toefl.json",
+        CollectionIds.GATE to "collection_gate.json"
     )
 
     private val cache = mutableMapOf<String, List<CollectionWordDto>>()

@@ -8,11 +8,14 @@ import androidx.work.Configuration
 import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
 import androidx.work.WorkerFactory
+import com.google.android.play.core.review.ReviewManagerFactory
+import com.google.android.play.core.review.ReviewManager
 import com.google.firebase.FirebaseApp
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rudra.defineeasy.core.CrashReporter
 import com.rudra.defineeasy.notifications.DictionaryAppNotificationChannel
 import com.rudra.defineeasy.notifications.ReviewReminderScheduler
+import com.rudra.defineeasy.preferences.ReviewPromptPreferences
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -20,6 +23,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 private const val TAG = "DictionaryApp"
 
@@ -28,6 +32,7 @@ class DictionaryApp : Application(), Configuration.Provider {
 
     @Inject lateinit var workerFactory: HiltWorkerFactory
     @Inject lateinit var reviewReminderScheduler: ReviewReminderScheduler
+    @Inject lateinit var reviewPromptPreferences: ReviewPromptPreferences
 
     private val startupExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         Log.e(TAG, "Background startup task failed", throwable)
@@ -55,6 +60,7 @@ class DictionaryApp : Application(), Configuration.Provider {
         initializeFirebaseCrashlytics()
         createNotificationChannelsSafely()
         scheduleReviewRemindersSafely()
+        checkAndShowReviewPrompt()
     }
 
     private fun initializeFirebaseCrashlytics() {
@@ -94,6 +100,23 @@ class DictionaryApp : Application(), Configuration.Provider {
                 Log.e(TAG, "Review reminder scheduling failed", throwable)
                 CrashReporter.logNonFatal(throwable)
             }
+        }
+    }
+
+    private fun checkAndShowReviewPrompt() {
+        runCatching {
+            if (reviewPromptPreferences.getShouldShowPromptSync()) {
+                val manager: ReviewManager = ReviewManagerFactory.create(this)
+                val request = manager.requestReviewFlow()
+                request.addOnSuccessListener { _ ->
+                    runBlocking {
+                        reviewPromptPreferences.recordPromptShown()
+                    }
+                }
+            }
+        }.onFailure { throwable ->
+            Log.e(TAG, "Review prompt check failed", throwable)
+            CrashReporter.logNonFatal(throwable)
         }
     }
 
