@@ -18,3 +18,5 @@ local.properties
 new-upload-key.jks
 *.jks
 *.keystore
+*.pem
+keystore.properties

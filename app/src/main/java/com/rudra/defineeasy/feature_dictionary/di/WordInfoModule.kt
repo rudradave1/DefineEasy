@@ -33,8 +33,13 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.ConnectionSpec
+import okhttp3.OkHttpClient
+import okhttp3.TlsVersion
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.security.KeyManagementException
+import java.security.NoSuchAlgorithmException
 import javax.inject.Singleton
 
 @Module
@@ -240,9 +245,22 @@ object WordInfoModule {
 
     @Provides
     @Singleton
-    fun provideDictionaryApi(): DictionaryApi {
+    fun provideOkHttpClient(): OkHttpClient {
+        val tlsSpec = ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
+            .tlsVersions(TlsVersion.TLS_1_3, TlsVersion.TLS_1_2)
+            .build()
+
+        return OkHttpClient.Builder()
+            .connectionSpecs(listOf(tlsSpec))
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideDictionaryApi(client: OkHttpClient): DictionaryApi {
         return Retrofit.Builder()
             .baseUrl(DictionaryApi.BASE_URL)
+            .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(DictionaryApi::class.java)

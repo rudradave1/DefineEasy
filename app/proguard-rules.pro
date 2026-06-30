@@ -6,7 +6,7 @@
 -keepattributes Signature, EnclosingMethod, InnerClasses, *Annotation*
 -keep class retrofit2.** { *; }
 -dontwarn retrofit2.**
--keep interface * {
+-keep interface com.rudra.defineeasy.feature_dictionary.data.remote.DictionaryApi {
     @retrofit2.http.* <methods>;
 }
 
@@ -30,7 +30,6 @@
 -keep class * extends com.google.gson.reflect.TypeToken
 
 # Feature Dictionary Models & DTOs
-# These MUST be kept to prevent ClassCastException (LinkedTreeMap)
 -keep class com.rudra.defineeasy.feature_dictionary.data.remote.dto.** { *; }
 -keep class com.rudra.defineeasy.feature_dictionary.data.local.entity.** { *; }
 -keep class com.rudra.defineeasy.feature_dictionary.domain.model.** { *; }
@@ -41,10 +40,9 @@
 -keep class javax.inject.** { *; }
 -keep class * extends dagger.hilt.internal.GeneratedComponent { *; }
 
-# SQLCipher / SQLite
--keep class net.sqlcipher.** { *; }
--keep class net.zetetic.database.sqlcipher.** { *; }
--keep class androidx.sqlite.** { *; }
+# Android Keystore / Security
+-keep class android.security.keystore.** { *; }
+-keep class androidx.security.crypto.** { *; }
 
 # Crashlytics
 -keep class com.google.firebase.crashlytics.** { *; }

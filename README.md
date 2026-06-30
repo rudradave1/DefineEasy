@@ -28,8 +28,6 @@ Download
     - **Learning Analytics:** New "Progress" tab with stats for Mastered and Learning words.
     - **Spaced Repetition:** Improved SM-2 scheduling and review history tracking.
 • **Crashlytics Stability:** Fixed random crashes and improved stability with updated Proguard rules (v3.0.8).
-• **Model Preservation:** Ensured all DTOs and entities are preserved during obfuscation to prevent deserialization errors.
-• **Advertising ID:** Corrected AD_ID permission configuration for better Play Store compliance.
 • **Performance:** Internal optimizations and performance improvements.
 
 <h1 align=center>Screenshots 📸</h1>
@@ -76,6 +74,17 @@ Please refer to the build.gradle files for a complete list of dependencies.
 ## Firebase Setup
 
 Crashlytics is configured for release builds. Replace `app/google-services.json` with your own Firebase project configuration before shipping to production.
+
+### Security: Restrict Firebase API Key
+
+The API key in `google-services.json` is public by design. To prevent unauthorized use:
+
+1. Open [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+2. Locate the API key for project `defineeasy-2b335`
+3. Under **Application restrictions**, select **Android apps**
+4. Add your app's SHA-256 fingerprint (from `keytool -list -v -keystore your-keystore.jks`)
+5. Set **API restrictions** to only allow Crashlytics and Analytics APIs
+
 
 <h1 align=center>Contributing</h1>
 We welcome contributions from the open-source community. If you'd like to contribute to DefineEasy, please follow our contribution guidelines.

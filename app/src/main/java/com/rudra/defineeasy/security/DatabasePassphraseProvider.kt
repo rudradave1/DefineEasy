@@ -39,12 +39,10 @@ class DatabasePassphraseProvider @Inject constructor(
         )
     }
 
-    // FIX 2 — The entire passphrase retrieval / creation is guarded.
-    // If the Android Keystore, EncryptedSharedPreferences, or cipher operations
-    // fail for any reason (corrupted key, device-restore, rooted device, etc.)
-    // we fall back to a deterministic 32-byte passphrase rather than crashing.
-    // The database will still open; it just won't benefit from Keystore-backed
-    // encryption on that boot — far better than a Play Store rejection crash.
+    private val fallbackPrefs by lazy {
+        context.getSharedPreferences(FALLBACK_PREFS_NAME, Context.MODE_PRIVATE)
+    }
+
     fun getOrCreatePassphrase(): ByteArray {
         return try {
             val encrypted = preferences.getString(KEY_PASSPHRASE, null)
@@ -61,11 +59,21 @@ class DatabasePassphraseProvider @Inject constructor(
                 passphrase
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Keystore passphrase operation failed — using fallback passphrase", e)
-            // Fallback: 32 zero-bytes. The DB will open; Keystore-backed
-            // encryption is unavailable on this boot only.
-            ByteArray(32)
+            Log.e(TAG, "Keystore passphrase operation failed — using persisted fallback passphrase", e)
+            getOrCreateFallbackPassphrase()
         }
+    }
+
+    private fun getOrCreateFallbackPassphrase(): ByteArray {
+        val existing = fallbackPrefs.getString(KEY_FALLBACK_PASSPHRASE, null)
+        if (existing != null) {
+            return Base64.decode(existing, Base64.NO_WRAP)
+        }
+        val passphrase = Random.Default.nextBytes(32)
+        fallbackPrefs.edit()
+            .putString(KEY_FALLBACK_PASSPHRASE, Base64.encodeToString(passphrase, Base64.NO_WRAP))
+            .apply()
+        return passphrase
     }
 
     private fun encrypt(passphrase: ByteArray): Pair<String, String> {
@@ -109,8 +117,10 @@ class DatabasePassphraseProvider @Inject constructor(
 
     companion object {
         private const val PREFS_NAME = "encrypted_db_passphrase_prefs"
+        private const val FALLBACK_PREFS_NAME = "db_passphrase_fallback"
         private const val KEY_PASSPHRASE = "encrypted_passphrase"
         private const val KEY_IV = "encrypted_passphrase_iv"
+        private const val KEY_FALLBACK_PASSPHRASE = "fallback_passphrase_base64"
         private const val KEY_ALIAS = "defineeasy_db_key"
         private const val ANDROID_KEYSTORE = "AndroidKeyStore"
         private const val TRANSFORMATION = "AES/GCM/NoPadding"

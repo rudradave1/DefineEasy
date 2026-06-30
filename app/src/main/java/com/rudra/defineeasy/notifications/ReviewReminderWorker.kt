@@ -13,7 +13,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.rudra.defineeasy.MainActivity
 import com.rudra.defineeasy.R
-import com.rudra.defineeasy.feature_dictionary.data.local.WordInfoDatabase
+import com.rudra.defineeasy.feature_dictionary.data.local.WordInfoDao
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.time.LocalDate
@@ -22,11 +22,11 @@ import java.time.LocalDate
 class ReviewReminderWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val database: WordInfoDatabase
+    private val dao: WordInfoDao
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
-        val dueCount = database.dao.getDueReviewCountValue(LocalDate.now().toEpochDay())
+        val dueCount = dao.getDueReviewCountValue(LocalDate.now().toEpochDay())
         if (dueCount <= 0) {
             return Result.success()
         }
