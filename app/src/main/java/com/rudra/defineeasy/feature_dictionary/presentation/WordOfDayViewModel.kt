@@ -3,6 +3,7 @@ package com.rudra.defineeasy.feature_dictionary.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rudra.defineeasy.core.CrashReporter
+import com.rudra.defineeasy.core.analytics.AnalyticsService
 import com.rudra.defineeasy.feature_dictionary.data.local.WordOfDayPreferences
 import com.rudra.defineeasy.feature_dictionary.domain.model.Definition
 import com.rudra.defineeasy.feature_dictionary.domain.model.Meaning
@@ -25,7 +26,8 @@ class WordOfDayViewModel @Inject constructor(
     private val getSavedWordInfo: GetSavedWordInfo,
     private val getWordInfo: GetWordInfo,
     private val saveWordInfoUseCase: SaveWordInfoUseCase,
-    private val toggleFavoriteUseCase: ToggleFavoriteUseCase
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
+    private val analyticsService: AnalyticsService
 ) : ViewModel() {
 
     private val _uiState = androidx.compose.runtime.mutableStateOf(WordOfDayUiState())
@@ -50,6 +52,7 @@ class WordOfDayViewModel @Inject constructor(
                 )
             }.onSuccess { state ->
                 _uiState.value = state
+                state.wordOfDay?.let { analyticsService.onWordOfDayViewed(it.word) }
             }.onFailure { throwable ->
                 CrashReporter.logNonFatal(throwable)
                 _uiState.value = _uiState.value.copy(

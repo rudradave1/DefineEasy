@@ -20,8 +20,28 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -33,9 +53,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rudra.defineeasy.R
+import com.rudra.defineeasy.core.ui.SkeletonCollectionCard
 import com.rudra.defineeasy.feature_dictionary.domain.model.CollectionIds
-import com.rudra.defineeasy.feature_dictionary.presentation.*
-import com.rudra.defineeasy.ui.theme.*
+import com.rudra.defineeasy.feature_dictionary.presentation.CollectionCardUiModel
+import com.rudra.defineeasy.feature_dictionary.presentation.CollectionsEvent
+import com.rudra.defineeasy.feature_dictionary.presentation.CollectionsViewModel
+import com.rudra.defineeasy.feature_dictionary.presentation.CollectionsUiState
+import com.rudra.defineeasy.feature_dictionary.presentation.collectionUiMetadata
+import com.rudra.defineeasy.ui.theme.BusinessGradientEnd
+import com.rudra.defineeasy.ui.theme.BusinessGradientStart
+import com.rudra.defineeasy.ui.theme.CatGradientEnd
+import com.rudra.defineeasy.ui.theme.CatGradientStart
+import com.rudra.defineeasy.ui.theme.DefineEasyTheme
+import com.rudra.defineeasy.ui.theme.GeneralGradientEnd
+import com.rudra.defineeasy.ui.theme.GeneralGradientStart
+import com.rudra.defineeasy.ui.theme.GreGradientEnd
+import com.rudra.defineeasy.ui.theme.GreGradientStart
+import com.rudra.defineeasy.ui.theme.UpscGradientEnd
+import com.rudra.defineeasy.ui.theme.UpscGradientStart
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,18 +110,29 @@ fun CollectionsScreen(
 
         when (val state = uiState) {
             CollectionsUiState.Loading -> {
-                Box(
+                LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
+                        .padding(paddingValues)
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    CircularProgressIndicator()
+                    items(4) {
+                        SkeletonCollectionCard()
+                    }
                 }
             }
 
             CollectionsUiState.Empty -> {
-                EmptyCollectionsState(modifier = Modifier.padding(paddingValues))
+                PullToRefreshBox(
+                    isRefreshing = false,
+                    onRefresh = viewModel::refresh,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    EmptyCollectionsState()
+                }
             }
 
             is CollectionsUiState.Error -> {
@@ -97,18 +143,25 @@ fun CollectionsScreen(
             }
 
             is CollectionsUiState.Success -> {
-                LazyColumn(
+                PullToRefreshBox(
+                    isRefreshing = false,
+                    onRefresh = viewModel::refresh,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                        .padding(horizontal = 16.dp, vertical = 14.dp),
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    items(state.collections, key = { it.id }) { collection ->
-                        CollectionCard(
-                            collection = collection,
-                            onClick = { onCollectionSelected(collection.id) }
-                        )
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                        verticalArrangement = Arrangement.spacedBy(14.dp)
+                    ) {
+                        items(state.collections, key = { it.id }) { collection ->
+                            CollectionCard(
+                                collection = collection,
+                                onClick = { onCollectionSelected(collection.id) }
+                            )
+                        }
                     }
                 }
             }

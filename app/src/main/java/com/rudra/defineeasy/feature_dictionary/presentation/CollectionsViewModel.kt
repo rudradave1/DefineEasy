@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
+import com.rudra.defineeasy.core.analytics.AnalyticsService
 import com.rudra.defineeasy.feature_dictionary.domain.repository.CollectionRepository
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -25,7 +26,8 @@ class CollectionsViewModel @Inject constructor(
     getFavoritesUseCase: GetFavoritesUseCase,
     private val getCollectionsUseCase: GetCollectionsUseCase,
     private val getCollectionWordsUseCase: GetCollectionWordsUseCase,
-    private val collectionRepository: CollectionRepository
+    private val collectionRepository: CollectionRepository,
+    private val analyticsService: AnalyticsService
 ) : ViewModel() {
 
     private val collectionSummaries = MutableStateFlow<List<com.rudra.defineeasy.feature_dictionary.domain.model.CollectionSummary>>(emptyList())
@@ -96,11 +98,16 @@ class CollectionsViewModel @Inject constructor(
         }
     }
 
+    fun refresh() {
+        loadCollections()
+    }
+
     fun onEvent(event: CollectionsEvent) {
         when (event) {
             is CollectionsEvent.CreateCollection -> {
                 viewModelScope.launch {
                     collectionRepository.createCustomCollection(event.name)
+                    analyticsService.onCollectionCreated()
                 }
             }
             is CollectionsEvent.DeleteCollection -> {

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Bar chart with trend line -->
+    <!-- Background card -->
+    <path
+        android:fillColor="#E8DEF8"
+        android:pathData="M25,180 L25,40 Q25,30 35,30 L175,30 Q185,30 185,40 L185,180 Z" />
+    <!-- Chart area -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M35,35 L175,35 Q180,35 180,40 L180,175 L35,175 Z" />
+    <!-- Horizontal grid lines -->
+    <path
+        android:fillColor="#EFE7F8"
+        android:pathData="M45,160 L170,160 M45,125 L170,125 M45,90 L170,90 M45,55 L170,55" />
+    <!-- Bar 1 -->
+    <path
+        android:fillColor="#D0BCFF"
+        android:pathData="M55,150 L55,100 L70,100 L70,150 Z" />
+    <!-- Bar 2 -->
+    <path
+        android:fillColor="#D0BCFF"
+        android:pathData="M80,150 L80,80 L95,80 L95,150 Z" />
+    <!-- Bar 3 -->
+    <path
+        android:fillColor="#BAA3E8"
+        android:pathData="M105,150 L105,60 L120,60 L120,150 Z" />
+    <!-- Bar 4 -->
+    <path
+        android:fillColor="#D0BCFF"
+        android:pathData="M130,150 L130,70 L145,70 L145,150 Z" />
+    <!-- Bar 5 -->
+    <path
+        android:fillColor="#BAA3E8"
+        android:pathData="M155,150 L155,45 L170,45 L170,150 Z" />
+    <!-- Checkmark -->
+    <path
+        android:fillColor="#4CAF50"
+        android:pathData="M95,165 L100,170 L115,155" />
+    <!-- Trophy -->
+    <path
+        android:fillColor="#FFD600"
+        android:pathData="M60,40 L60,25 L100,25 L100,40 L80,40 L80,35 L70,35 L70,40 Z" />
+    <path
+        android:fillColor="#FFD600"
+        android:pathData="M55,30 C55,20 65,15 75,18 L75,25 L55,30 Z" />
+    <path
+        android:fillColor="#FFD600"
+        android:pathData="M105,30 C105,20 95,15 85,18 L85,25 L105,30 Z" />
+    <!-- Arrow up -->
+    <path
+        android:fillColor="#4CAF50"
+        android:pathData="M155,30 L162,20 L169,30 L164,27 L164,38 L160,38 L160,27 Z" />
+</vector>

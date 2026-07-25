@@ -2,7 +2,7 @@ package com.rudra.defineeasy.feature_dictionary.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rudra.defineeasy.feature_dictionary.data.local.WordInfoDao
+import com.rudra.defineeasy.feature_dictionary.data.local.ReviewHistoryDao
 import com.rudra.defineeasy.feature_dictionary.domain.repository.WordInfoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,12 +15,12 @@ import javax.inject.Inject
 @HiltViewModel
 class ProgressViewModel @Inject constructor(
     private val repository: WordInfoRepository,
-    private val dao: WordInfoDao
+    private val reviewHistoryDao: ReviewHistoryDao
 ) : ViewModel() {
 
     val uiState: StateFlow<ProgressUiState> = combine(
         repository.getFavorites(),
-        dao.getReviewHistory()
+        reviewHistoryDao.getReviewHistory()
     ) { favorites, history ->
         val masteredCount = favorites.count { it.repetitions >= 4 }
         val learningCount = favorites.count { it.repetitions in 1..3 }

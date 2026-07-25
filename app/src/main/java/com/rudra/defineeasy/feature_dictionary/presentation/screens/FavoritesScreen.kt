@@ -16,7 +16,6 @@ import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -26,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rudra.defineeasy.R
+import com.rudra.defineeasy.core.ui.SkeletonWordItem
 import com.rudra.defineeasy.feature_dictionary.domain.model.WordInfo
 import com.rudra.defineeasy.feature_dictionary.presentation.FavoritesUiState
 import com.rudra.defineeasy.feature_dictionary.presentation.FavoritesViewModel
@@ -55,11 +56,11 @@ fun FavoritesScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Text(
                         text = stringResource(R.string.favorites_title),
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
-                    ) 
+                        fontWeight = FontWeight.SemiBold
+                    )
                 },
                 colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainerLow
@@ -69,13 +70,24 @@ fun FavoritesScreen(
     ) { paddingValues ->
         when (val state = uiState) {
             FavoritesUiState.Loading -> {
-                Box(
+                LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
+                        .padding(paddingValues)
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                    items(6) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainer
+                            )
+                        ) {
+                            SkeletonWordItem()
+                        }
+                    }
                 }
             }
 
@@ -112,19 +124,26 @@ fun FavoritesScreen(
             }
 
             is FavoritesUiState.Success -> {
-                LazyColumn(
+                PullToRefreshBox(
+                    isRefreshing = false,
+                    onRefresh = viewModel::refresh,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(state.words, key = { it.word }) { wordInfo ->
-                        FavoriteWordItem(
-                            wordInfo = wordInfo,
-                            onWordSelected = { onWordSelected(wordInfo.word) },
-                            onUnfavorite = { viewModel.toggleFavorite(wordInfo.word) }
-                        )
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(state.words, key = { it.word }) { wordInfo ->
+                            FavoriteWordItem(
+                                wordInfo = wordInfo,
+                                onWordSelected = { onWordSelected(wordInfo.word) },
+                                onUnfavorite = { viewModel.toggleFavorite(wordInfo.word) }
+                            )
+                        }
                     }
                 }
             }
@@ -138,12 +157,12 @@ private fun FavoriteWordItem(
     onWordSelected: () -> Unit,
     onUnfavorite: () -> Unit
 ) {
-    androidx.compose.material3.Card(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onWordSelected),
         shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
-        colors = androidx.compose.material3.CardDefaults.cardColors(
+        colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer
         )
     ) {
@@ -161,7 +180,7 @@ private fun FavoriteWordItem(
                 Text(
                     text = wordInfo.word,
                     fontSize = 18.sp,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                    fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(

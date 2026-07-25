@@ -3,6 +3,7 @@ package com.rudra.defineeasy.feature_dictionary.presentation
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rudra.defineeasy.core.analytics.AnalyticsService
 import com.rudra.defineeasy.feature_dictionary.domain.model.CollectionWord
 import com.rudra.defineeasy.feature_dictionary.domain.model.Definition
 import com.rudra.defineeasy.feature_dictionary.domain.model.Meaning
@@ -39,7 +40,8 @@ class CollectionWordsViewModel @Inject constructor(
     private val getSavedWordInfo: GetSavedWordInfo,
     private val getWordInfo: GetWordInfo,
     private val saveWordInfoUseCase: SaveWordInfoUseCase,
-    private val toggleFavoriteUseCase: ToggleFavoriteUseCase
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
+    private val analyticsService: AnalyticsService
 ) : ViewModel() {
 
     private val collectionId = savedStateHandle.get<String>("collectionId").orEmpty()
@@ -51,6 +53,7 @@ class CollectionWordsViewModel @Inject constructor(
     val eventFlow = _eventFlow.asSharedFlow()
 
     init {
+        analyticsService.onCollectionOpened(collectionId)
         collectionWords
             .combine(getFavoritesUseCase()) { words, favorites ->
                 val favoriteWords = favorites.map { it.word.lowercase() }.toSet()

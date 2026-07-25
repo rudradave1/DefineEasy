@@ -32,12 +32,12 @@ plugins {
 
 android {
     namespace = "com.rudra.defineeasy"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.rudra.defineeasy"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = APP_VERSION_CODE
         versionName = APP_VERSION_NAME
 

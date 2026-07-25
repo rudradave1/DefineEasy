@@ -6,12 +6,16 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.work.HiltWorkerFactory
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.NavHostController
+import com.rudra.defineeasy.core.analytics.AnalyticsService
 import com.rudra.defineeasy.feature_dictionary.presentation.screens.CollectionWordsScreenRoute
 import com.rudra.defineeasy.feature_dictionary.presentation.screens.CollectionsScreen
 import com.rudra.defineeasy.feature_dictionary.presentation.screens.FavoritesScreen
@@ -28,6 +32,8 @@ fun DefineEasyNavGraph(
     navController: NavHostController,
     contentPadding: PaddingValues
 ) {
+    val context = LocalContext.current
+    val analytics = rememberAnalyticsService()
     NavHost(
         navController = navController,
         startDestination = DefineEasyDestination.Search.route,
@@ -45,6 +51,7 @@ fun DefineEasyNavGraph(
         }
     ) {
         composable(route = DefineEasyDestination.Search.route) {
+            LaunchedEffect(Unit) { analytics.trackScreen("Search") }
             SearchScreen(
                 onWordSelected = { word ->
                     navController.navigate(DefineEasyDestination.WordDetail.createRoute(word))
@@ -62,6 +69,7 @@ fun DefineEasyNavGraph(
             )
         }
         composable(route = DefineEasyDestination.Favorites.route) {
+            LaunchedEffect(Unit) { analytics.trackScreen("Favorites") }
             FavoritesScreen(
                 onNavigateUp = { navController.navigateUp() },
                 onWordSelected = { word ->
@@ -70,12 +78,15 @@ fun DefineEasyNavGraph(
             )
         }
         composable(route = DefineEasyDestination.Review.route) {
+            LaunchedEffect(Unit) { analytics.trackScreen("Review") }
             ReviewScreen(onNavigateUp = { navController.navigateUp() })
         }
         composable(route = DefineEasyDestination.Progress.route) {
+            LaunchedEffect(Unit) { analytics.trackScreen("Progress") }
             ProgressScreen()
         }
         composable(route = DefineEasyDestination.Collections.route) {
+            LaunchedEffect(Unit) { analytics.trackScreen("Collections") }
             CollectionsScreen(
                 onCollectionSelected = { collectionId ->
                     navController.navigate(DefineEasyDestination.CollectionWords.createRoute(collectionId))
@@ -83,9 +94,14 @@ fun DefineEasyNavGraph(
             )
         }
         composable(route = DefineEasyDestination.Settings.route) {
+            LaunchedEffect(Unit) {
+                analytics.trackScreen("Settings")
+                analytics.onSettingsOpened()
+            }
             SettingsScreen(onNavigateUp = { navController.navigateUp() })
         }
         composable(route = DefineEasyDestination.Quiz.route) {
+            LaunchedEffect(Unit) { analytics.trackScreen("Quiz") }
             QuizScreen(onNavigateUp = { navController.navigateUp() })
         }
         composable(
@@ -94,6 +110,7 @@ fun DefineEasyNavGraph(
                 navArgument("collectionId") { type = NavType.StringType }
             )
         ) {
+            LaunchedEffect(Unit) { analytics.trackScreen("CollectionWords") }
             CollectionWordsScreenRoute(
                 onNavigateUp = { navController.navigateUp() },
                 onWordSelected = { word ->
@@ -107,6 +124,7 @@ fun DefineEasyNavGraph(
                 navArgument("word") { type = NavType.StringType }
             )
         ) {
+            LaunchedEffect(Unit) { analytics.trackScreen("WordDetail") }
             WordDetailScreenRoute(
                 onNavigateUp = { navController.navigateUp() },
                 onWordSelected = { word ->
@@ -115,4 +133,14 @@ fun DefineEasyNavGraph(
             )
         }
     }
+}
+
+/**
+ * Retrieves the [AnalyticsService] from the Hilt-injected Application instance.
+ */
+@Composable
+private fun rememberAnalyticsService(): AnalyticsService {
+    val context = LocalContext.current
+    val app = context.applicationContext as com.rudra.defineeasy.DictionaryApp
+    return app.analyticsService
 }

@@ -1,19 +1,32 @@
 package com.rudra.defineeasy.feature_dictionary.presentation.screens
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rudra.defineeasy.R
+import com.rudra.defineeasy.core.ui.SkeletonStatCard
+import com.rudra.defineeasy.core.ui.SkeletonWordItem
 import com.rudra.defineeasy.feature_dictionary.presentation.ProgressUiState
 import com.rudra.defineeasy.feature_dictionary.presentation.ProgressViewModel
 
@@ -33,10 +46,59 @@ fun ProgressScreen(
     ) { paddingValues ->
         when (val state = uiState) {
             is ProgressUiState.Loading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Card(
+                                modifier = Modifier.weight(1f),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                )
+                            ) {
+                                SkeletonStatCard(modifier = Modifier.padding(16.dp))
+                            }
+                            Card(
+                                modifier = Modifier.weight(1f),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                )
+                            ) {
+                                SkeletonStatCard(modifier = Modifier.padding(16.dp))
+                            }
+                        }
+                    }
+
+                    item {
+                        Text(
+                            text = stringResource(R.string.recent_reviews),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    items(5) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainer
+                            )
+                        ) {
+                            SkeletonWordItem()
+                        }
+                    }
                 }
             }
+
             is ProgressUiState.Success -> {
                 LazyColumn(
                     modifier = Modifier
@@ -59,7 +121,7 @@ fun ProgressScreen(
                             )
                         }
                     }
-                    
+
                     item {
                         Text(
                             text = stringResource(R.string.recent_reviews),

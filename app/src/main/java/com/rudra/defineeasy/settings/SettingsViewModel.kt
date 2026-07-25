@@ -2,11 +2,14 @@ package com.rudra.defineeasy.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rudra.defineeasy.core.analytics.AnalyticsService
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.ClearAllFavoritesUseCase
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.ClearSearchHistoryUseCase
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.ResetReviewProgressUseCase
 import com.rudra.defineeasy.notifications.ReviewReminderScheduler
 import com.rudra.defineeasy.preferences.ReminderPreferences
+import com.rudra.defineeasy.preferences.ThemeMode
+import com.rudra.defineeasy.preferences.ThemePreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,12 +21,13 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    reminderPreferences: ReminderPreferences,
-    private val reminderSettingsStore: ReminderPreferences,
+    private val reminderPreferences: ReminderPreferences,
     private val reviewReminderScheduler: ReviewReminderScheduler,
     private val clearSearchHistoryUseCase: ClearSearchHistoryUseCase,
     private val clearAllFavoritesUseCase: ClearAllFavoritesUseCase,
-    private val resetReviewProgressUseCase: ResetReviewProgressUseCase
+    private val resetReviewProgressUseCase: ResetReviewProgressUseCase,
+    private val analyticsService: AnalyticsService,
+    private val themePreferences: ThemePreferences
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -32,7 +36,8 @@ class SettingsViewModel @Inject constructor(
     init {
         reminderPreferences.reminderSettings()
             .onEach { settings ->
-                _uiState.value = SettingsUiState(
+                val currentState = _uiState.value
+                _uiState.value = currentState.copy(
                     reminderEnabled = settings.enabled,
                     reminderHour = settings.hour,
                     reminderMinute = settings.minute,
@@ -40,11 +45,24 @@ class SettingsViewModel @Inject constructor(
                 )
             }
             .launchIn(viewModelScope)
+
+        themePreferences.themeMode
+            .onEach { mode ->
+                _uiState.value = _uiState.value.copy(themeMode = mode)
+            }
+            .launchIn(viewModelScope)
+    }
+
+    fun setThemeMode(mode: ThemeMode) {
+        viewModelScope.launch {
+            themePreferences.setThemeMode(mode)
+        }
     }
 
     fun setReminderEnabled(enabled: Boolean) {
         viewModelScope.launch {
-            reminderSettingsStore.setReminderEnabled(enabled)
+            reminderPreferences.setReminderEnabled(enabled)
+            analyticsService.onReminderEnabled(enabled)
             if (enabled) {
                 val state = uiState.value
                 reviewReminderScheduler.reschedule(state.reminderHour, state.reminderMinute)
@@ -56,7 +74,7 @@ class SettingsViewModel @Inject constructor(
 
     fun setReminderTime(hour: Int, minute: Int) {
         viewModelScope.launch {
-            reminderSettingsStore.setReminderTime(hour, minute)
+            reminderPreferences.setReminderTime(hour, minute)
             if (uiState.value.reminderEnabled) {
                 reviewReminderScheduler.reschedule(hour, minute)
             }

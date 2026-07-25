@@ -296,7 +296,7 @@ private fun SearchHeroSection(
     onOpenReview: () -> Unit,
     onOpenQuiz: () -> Unit = {}
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         WordOfDayHeroCard(
             wordOfDayState = wordOfDayState,
             onOpenWord = { wordOfDayState.wordOfDay?.let { onOpenWord(it.word) } }
@@ -305,15 +305,21 @@ private fun SearchHeroSection(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            StreakCard(
+            QuickActionCard(
                 modifier = Modifier.weight(1f),
-                streakCount = streakCount,
+                icon = "🔥",
+                iconBg = StreakOrange.copy(alpha = 0.12f),
+                title = if (streakCount > 0) stringResource(R.string.streak_card_count_short, streakCount) else stringResource(R.string.streak_card_zero_short),
+                subtitle = stringResource(R.string.streak_subtitle),
                 onClick = onOpenReview
             )
             AnimatedVisibility(visible = dueCount > 0) {
-                DueReviewBadge(
+                QuickActionCard(
                     modifier = Modifier.weight(1f),
-                    dueCount = dueCount,
+                    icon = "📚",
+                    iconBg = ReviewAmber.copy(alpha = 0.12f),
+                    title = stringResource(R.string.due_reviews_short, dueCount),
+                    subtitle = stringResource(R.string.due_reviews_subtitle),
                     onClick = onOpenReview
                 )
             }
@@ -448,9 +454,12 @@ private fun WordOfDayCardUnavailable() {
 }
 
 @Composable
-private fun StreakCard(
+private fun QuickActionCard(
     modifier: Modifier = Modifier,
-    streakCount: Int,
+    icon: String,
+    iconBg: Color,
+    title: String,
+    subtitle: String,
     onClick: () -> Unit
 ) {
     Card(
@@ -461,53 +470,31 @@ private fun StreakCard(
         )
     ) {
         Column(
-            modifier = Modifier.padding(18.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Box(
                 modifier = Modifier
-                    .size(36.dp)
+                    .size(40.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(StreakOrange.copy(alpha = 0.16f)),
+                    .background(iconBg),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "🔥", fontSize = 18.sp)
+                Text(text = icon, fontSize = 20.sp)
             }
-            Text(
-                text = if (streakCount > 0) {
-                    stringResource(R.string.streak_card_count, streakCount)
-                } else {
-                    stringResource(R.string.streak_card_zero)
-                },
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-    }
-}
-
-@Composable
-private fun DueReviewBadge(
-    modifier: Modifier = Modifier,
-    dueCount: Int,
-    onClick: () -> Unit
-) {
-    Surface(
-        modifier = modifier.clickable(onClick = onClick),
-        color = ReviewAmber.copy(alpha = 0.16f),
-        contentColor = ReviewAmber,
-        shape = RoundedCornerShape(999.dp)
-    ) {
-        Box(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 18.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = stringResource(R.string.due_reviews_pill, dueCount),
-                fontWeight = FontWeight.SemiBold,
-                style = MaterialTheme.typography.labelLarge
-            )
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }
@@ -524,27 +511,51 @@ private fun QuizStartCard(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         )
     ) {
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .background(
+                    brush = Brush.linearGradient(
+                        listOf(
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.85f),
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.65f)
+                        )
+                    )
+                )
+                .padding(horizontal = 20.dp, vertical = 18.dp)
         ) {
-            Column {
-                Text(
-                    text = stringResource(R.string.start_quiz),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text = stringResource(R.string.quiz_pick_definition),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        text = stringResource(R.string.start_quiz),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = stringResource(R.string.quiz_pick_definition),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White.copy(alpha = 0.78f)
+                    )
+                }
+                Surface(
+                    color = Color.White.copy(alpha = 0.18f),
+                    shape = RoundedCornerShape(14.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .padding(10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "🧠", fontSize = 24.sp)
+                    }
+                }
             }
-            Text(text = "🧠", fontSize = 28.sp)
         }
     }
 }

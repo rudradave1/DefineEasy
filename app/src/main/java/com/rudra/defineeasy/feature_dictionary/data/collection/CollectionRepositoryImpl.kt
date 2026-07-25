@@ -1,6 +1,6 @@
 package com.rudra.defineeasy.feature_dictionary.data.collection
 
-import com.rudra.defineeasy.feature_dictionary.data.local.WordInfoDao
+import com.rudra.defineeasy.feature_dictionary.data.local.CollectionDao
 import com.rudra.defineeasy.feature_dictionary.data.local.entity.CollectionWordCrossRef
 import com.rudra.defineeasy.feature_dictionary.data.local.entity.CustomCollectionEntity
 import com.rudra.defineeasy.feature_dictionary.domain.model.CollectionIds
@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 class CollectionRepositoryImpl @Inject constructor(
     private val assetDataSource: CollectionAssetDataSource,
-    private val dao: WordInfoDao
+    private val dao: CollectionDao
 ) : CollectionRepository {
 
     override suspend fun getCollections(): List<CollectionSummary> {

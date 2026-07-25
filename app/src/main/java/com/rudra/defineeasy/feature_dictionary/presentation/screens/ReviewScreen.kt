@@ -29,7 +29,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -97,11 +96,33 @@ private fun ReviewScreenContent(
 ) {
     when {
         uiState.isLoading -> {
-            Box(
-                modifier = modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 20.dp, vertical = 18.dp),
+                verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
-                CircularProgressIndicator()
+                // Header skeleton
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    com.rudra.defineeasy.core.ui.ShimmerPlaceholder(
+                        modifier = Modifier.fillMaxWidth(0.55f).height(28.dp),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(6.dp)
+                    )
+                    com.rudra.defineeasy.core.ui.ShimmerPlaceholder(
+                        modifier = Modifier.fillMaxWidth(0.4f).height(14.dp),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp)
+                    )
+                    com.rudra.defineeasy.core.ui.ShimmerPlaceholder(
+                        modifier = Modifier.fillMaxWidth().height(8.dp),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp)
+                    )
+                }
+                // Card skeleton
+                com.rudra.defineeasy.core.ui.SkeletonCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f, fill = false)
+                )
             }
         }
 

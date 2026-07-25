@@ -12,6 +12,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
+import com.rudra.defineeasy.core.analytics.AnalyticsService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
@@ -36,6 +37,7 @@ class SearchViewModelTest {
     private val getSearchHistory = mockk<GetSearchHistory>()
     private val deleteSearchHistoryItemUseCase = mockk<DeleteSearchHistoryItemUseCase>()
     private val clearSearchHistoryUseCase = mockk<ClearSearchHistoryUseCase>()
+    private val analyticsService = mockk<AnalyticsService>(relaxed = true)
 
     @BeforeEach
     fun setUp() {
@@ -122,6 +124,7 @@ class SearchViewModelTest {
         getWordInfo = getWordInfo,
         getSearchHistory = getSearchHistory,
         deleteSearchHistoryItemUseCase = deleteSearchHistoryItemUseCase,
-        clearSearchHistoryUseCase = clearSearchHistoryUseCase
+        clearSearchHistoryUseCase = clearSearchHistoryUseCase,
+        analyticsService = analyticsService
     )
 }

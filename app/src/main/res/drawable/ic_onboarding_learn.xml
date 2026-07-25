@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Book illustration -->
+    <!-- Book cover -->
+    <path
+        android:fillColor="#D0BCFF"
+        android:pathData="M45,160 L45,50 Q45,35 60,35 L160,35 Q175,35 175,50 L175,160 Z" />
+    <!-- Book pages (white) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M60,40 L160,40 Q170,40 170,50 L170,155 L60,155 Z" />
+    <!-- Book spine -->
+    <path
+        android:fillColor="#BAA3E8"
+        android:pathData="M55,40 L60,40 L60,155 L55,155 Z" />
+    <!-- Text lines -->
+    <path
+        android:fillColor="#CAC4D0"
+        android:pathData="M75,65 L155,65 M75,80 L140,80 M75,95 L150,95 M75,110 L130,110 M75,125 L145,125" />
+    <!-- Star on cover -->
+    <path
+        android:fillColor="#FFD600"
+        android:pathData="M105,20 L108,30 L118,30 L110,36 L113,46 L105,40 L97,46 L100,36 L92,30 L102,30 Z" />
+    <!-- Small star -->
+    <path
+        android:fillColor="#FFD600"
+        android:pathData="M140,22 L142,28 L148,28 L143,32 L145,38 L140,34 L135,38 L137,32 L132,28 L138,28 Z" />
+    <!-- Small star -->
+    <path
+        android:fillColor="#E8DEF8"
+        android:pathData="M72,28 L74,34 L80,34 L75,38 L77,44 L72,40 L67,44 L69,38 L64,34 L70,34 Z" />
+    <!-- Magnifying glass -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#D0BCFF"
+        android:strokeWidth="3"
+        android:pathData="M155,115 C155,105 163,97 173,97 C183,97 191,105 191,115 C191,125 183,133 173,133 C163,133 155,125 155,115 Z" />
+    <path
+        android:fillColor="#D0BCFF"
+        android:pathData="M185,130 L196,141" />
+</vector>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Flame illustration -->
+    <!-- Outer flame -->
+    <path
+        android:fillColor="#FFB347"
+        android:pathData="M100,180 C130,180 155,155 155,125 C155,95 135,75 120,55 C115,48 110,40 105,35 C100,30 100,30 100,30 C100,30 100,30 95,35 C90,40 85,48 80,55 C65,75 45,95 45,125 C45,155 70,180 100,180 Z" />
+    <!-- Inner flame -->
+    <path
+        android:fillColor="#FF8C00"
+        android:pathData="M100,165 C122,165 140,148 140,126 C140,104 125,88 114,72 C110,65 107,58 105,52 C103,48 100,45 100,45 C100,45 97,48 95,52 C93,58 90,65 86,72 C75,88 60,104 60,126 C60,148 78,165 100,165 Z" />
+    <!-- Core -->
+    <path
+        android:fillColor="#FFE082"
+        android:pathData="M100,145 C110,145 118,136 118,126 C118,116 110,108 100,100 C90,108 82,116 82,126 C82,136 90,145 100,145 Z" />
+    <!-- Ember dots -->
+    <path
+        android:fillColor="#FF8C00"
+        android:pathData="M60,90 A4,4 0,1,1 60,89 Z" />
+    <path
+        android:fillColor="#FFB347"
+        android:pathData="M140,85 A3,3 0,1,1 140,84 Z" />
+    <path
+        android:fillColor="#FF8C00"
+        android:pathData="M85,50 A3,3 0,1,1 85,49 Z" />
+    <!-- Sparkles -->
+    <path
+        android:fillColor="#FFD600"
+        android:pathData="M170,60 L172,66 L178,66 L173,70 L175,76 L170,72 L165,76 L167,70 L162,66 L168,66 Z" />
+    <path
+        android:fillColor="#FFD600"
+        android:pathData="M32,70 L34,76 L40,76 L35,80 L37,86 L32,82 L27,86 L29,80 L24,76 L30,76 Z" />
+</vector>

@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken
 import com.rudra.defineeasy.core.CrashReporter
 import com.rudra.defineeasy.feature_dictionary.domain.model.CollectionIds
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,7 +27,7 @@ class CollectionAssetDataSource @Inject constructor(
         CollectionIds.GATE to "collection_gate.json"
     )
 
-    private val cache = mutableMapOf<String, List<CollectionWordDto>>()
+    private val cache = ConcurrentHashMap<String, List<CollectionWordDto>>()
 
     fun getCollectionWords(collectionId: String): List<CollectionWordDto> {
         return cache.getOrPut(collectionId) {

@@ -1,7 +1,7 @@
 package com.rudra.defineeasy
 
 import android.app.Application
-import android.os.StrictMode
+import android.content.Context
 import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
@@ -13,6 +13,7 @@ import com.google.android.play.core.review.ReviewManager
 import com.google.firebase.FirebaseApp
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rudra.defineeasy.core.CrashReporter
+import com.rudra.defineeasy.core.analytics.AnalyticsService
 import com.rudra.defineeasy.notifications.DictionaryAppNotificationChannel
 import com.rudra.defineeasy.notifications.ReviewReminderScheduler
 import com.rudra.defineeasy.preferences.ReviewPromptPreferences
@@ -33,6 +34,7 @@ class DictionaryApp : Application(), Configuration.Provider {
     @Inject lateinit var workerFactory: HiltWorkerFactory
     @Inject lateinit var reviewReminderScheduler: ReviewReminderScheduler
     @Inject lateinit var reviewPromptPreferences: ReviewPromptPreferences
+    @Inject lateinit var analyticsService: AnalyticsService
 
     private val startupExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         Log.e(TAG, "Background startup task failed", throwable)
@@ -45,19 +47,8 @@ class DictionaryApp : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
-
-        if (BuildConfig.DEBUG) {
-            StrictMode.setThreadPolicy(
-                StrictMode.ThreadPolicy.Builder()
-                    .detectDiskReads()
-                    .detectDiskWrites()
-                    .detectNetwork()
-                    .penaltyLog()
-                    .build()
-            )
-        }
-
         initializeFirebaseCrashlytics()
+        initializeAnalytics()
         createNotificationChannelsSafely()
         scheduleReviewRemindersSafely()
         checkAndShowReviewPrompt()
@@ -80,6 +71,12 @@ class DictionaryApp : Application(), Configuration.Provider {
             }
         }.onFailure { throwable ->
             Log.e(TAG, "Crashlytics configuration failed; continuing without it", throwable)
+        }
+    }
+
+    private fun initializeAnalytics() {
+        if (FirebaseApp.getApps(this).isNotEmpty()) {
+            analyticsService.initialize()
         }
     }
 
@@ -107,16 +104,16 @@ class DictionaryApp : Application(), Configuration.Provider {
         runCatching {
             if (reviewPromptPreferences.getShouldShowPromptSync()) {
                 val manager: ReviewManager = ReviewManagerFactory.create(this)
-                val request = manager.requestReviewFlow()
-                request.addOnSuccessListener { _ ->
-                    runBlocking {
-                        reviewPromptPreferences.recordPromptShown()
+                manager.requestReviewFlow().addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        runBlocking {
+                            reviewPromptPreferences.recordPromptShown()
+                        }
                     }
                 }
             }
         }.onFailure { throwable ->
             Log.e(TAG, "Review prompt check failed", throwable)
-            CrashReporter.logNonFatal(throwable)
         }
     }
 
@@ -128,7 +125,7 @@ class DictionaryApp : Application(), Configuration.Provider {
                         Log.e(TAG, "Hilt workerFactory unavailable; using default factory", it)
                         object : WorkerFactory() {
                             override fun createWorker(
-                                appContext: android.content.Context,
+                                appContext: Context,
                                 workerClassName: String,
                                 workerParameters: WorkerParameters
                             ): ListenableWorker? = null

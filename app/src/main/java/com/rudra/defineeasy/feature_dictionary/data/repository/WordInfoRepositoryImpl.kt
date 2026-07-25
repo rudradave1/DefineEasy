@@ -2,6 +2,8 @@ package com.rudra.defineeasy.feature_dictionary.data.repository
 
 import com.rudra.defineeasy.core.CrashReporter
 import com.rudra.defineeasy.core.util.Resource
+import com.rudra.defineeasy.feature_dictionary.data.local.ReviewHistoryDao
+import com.rudra.defineeasy.feature_dictionary.data.local.SearchHistoryDao
 import com.rudra.defineeasy.feature_dictionary.data.local.WordInfoDao
 import com.rudra.defineeasy.feature_dictionary.data.local.entity.ReviewHistoryEntity
 import com.rudra.defineeasy.feature_dictionary.data.local.entity.SearchHistoryEntity
@@ -19,12 +21,14 @@ import java.io.IOException
 
 class WordInfoRepositoryImpl(
     private val api: DictionaryApi,
-    private val dao: WordInfoDao
+    private val dao: WordInfoDao,
+    private val searchHistoryDao: SearchHistoryDao,
+    private val reviewHistoryDao: ReviewHistoryDao
 ): WordInfoRepository {
 
     override fun getWordInfo(word: String): Flow<Resource<List<WordInfo>>> = flow {
         emit(Resource.Loading())
-        dao.upsertSearchHistory(
+        searchHistoryDao.upsertSearchHistory(
             SearchHistoryEntity(
                 word = word,
                 searchedAt = System.currentTimeMillis()
@@ -68,7 +72,7 @@ class WordInfoRepositoryImpl(
     }
 
     override suspend fun getSearchHistory(): List<String> {
-        return dao.getSearchHistory().map { it.word }
+        return searchHistoryDao.getSearchHistory().map { it.word }
     }
 
     override suspend fun getSavedWordInfo(word: String): WordInfo? {
@@ -142,7 +146,7 @@ class WordInfoRepositoryImpl(
                 nextReviewDateEpochDay = updatedReview.nextReviewDateEpochDay
             )
         )
-        dao.insertReviewHistory(
+        reviewHistoryDao.insertReviewHistory(
             ReviewHistoryEntity(
                 word = word,
                 rating = quality,
@@ -152,11 +156,11 @@ class WordInfoRepositoryImpl(
     }
 
     override suspend fun deleteSearchHistoryItem(word: String) {
-        dao.deleteSearchHistoryItem(word)
+        searchHistoryDao.deleteSearchHistoryItem(word)
     }
 
     override suspend fun clearSearchHistory() {
-        dao.clearSearchHistory()
+        searchHistoryDao.clearSearchHistory()
     }
 
     override suspend fun clearAllFavorites() {

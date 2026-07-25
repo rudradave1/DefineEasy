@@ -2,6 +2,7 @@ package com.rudra.defineeasy.feature_dictionary.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rudra.defineeasy.core.analytics.AnalyticsService
 import com.rudra.defineeasy.feature_dictionary.domain.model.QuizState
 import com.rudra.defineeasy.feature_dictionary.domain.quiz.QuizGenerator
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.GetDueReviewWordsUseCase
@@ -16,7 +17,8 @@ import kotlinx.coroutines.flow.onEach
 @HiltViewModel
 class QuizViewModel @Inject constructor(
     private val quizGenerator: QuizGenerator,
-    private val getDueReviewWordsUseCase: GetDueReviewWordsUseCase
+    private val getDueReviewWordsUseCase: GetDueReviewWordsUseCase,
+    private val analyticsService: AnalyticsService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(QuizState())
@@ -28,6 +30,7 @@ class QuizViewModel @Inject constructor(
 
     private fun loadQuiz() {
         _uiState.value = QuizState(isLoading = true)
+        analyticsService.onQuizStarted()
 
         getDueReviewWordsUseCase()
             .onEach { dueWords ->
@@ -61,6 +64,7 @@ class QuizViewModel @Inject constructor(
         val nextIndex = _uiState.value.currentIndex + 1
         if (nextIndex >= _uiState.value.totalQuestions) {
             _uiState.value = _uiState.value.copy(isComplete = true)
+            analyticsService.onQuizCompleted(_uiState.value.score, _uiState.value.totalQuestions)
         } else {
             _uiState.value = _uiState.value.copy(
                 currentIndex = nextIndex,

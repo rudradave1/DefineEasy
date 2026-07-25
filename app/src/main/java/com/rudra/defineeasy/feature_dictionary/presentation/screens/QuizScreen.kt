@@ -25,7 +25,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -35,6 +34,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -144,6 +145,7 @@ private fun QuizQuestionScreen(
     onNextQuestion: () -> Unit
 ) {
     val question = uiState.currentQuestion ?: return
+    val hapticFeedback = LocalHapticFeedback.current
 
     Column(
         modifier = modifier
@@ -218,7 +220,12 @@ private fun QuizQuestionScreen(
                 }
 
                 OutlinedButton(
-                    onClick = { if (!showResult) onAnswerSelected(index) },
+                    onClick = {
+                        if (!showResult) {
+                            hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onAnswerSelected(index)
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
                     enabled = !showResult

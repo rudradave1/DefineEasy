@@ -37,6 +37,11 @@
     <string name="streak_card_zero">🔥 Start your streak today</string>
     <string name="streak_card_count">🔥 %1$d day streak</string>
     <string name="due_reviews_pill">%1$d words due for review</string>
+    <string name="streak_card_count_short">🔥 %1$d</string>
+    <string name="streak_card_zero_short">🔥 0</string>
+    <string name="streak_subtitle">Day streak</string>
+    <string name="due_reviews_short">📚 %1$d</string>
+    <string name="due_reviews_subtitle">Words due</string>
     <string name="progress_label">Progress</string>
     <string name="tap_to_flip">Tap to flip</string>
     <string name="save_to_review">Save to Review</string>
@@ -152,4 +157,11 @@
     <string name="shortcut_wotd_long_label">See today\'s word</string>
     <string name="shortcut_review_label">Review</string>
     <string name="shortcut_review_long_label">Start reviewing words</string>
+    <string name="add_to_collection">Add to collection</string>
+    <string name="tts_unavailable">Text-to-speech is not available on this device</string>
+    <string name="settings_appearance_section">Appearance</string>
+    <string name="settings_theme">Theme</string>
+    <string name="theme_system">System default</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
 </resources>

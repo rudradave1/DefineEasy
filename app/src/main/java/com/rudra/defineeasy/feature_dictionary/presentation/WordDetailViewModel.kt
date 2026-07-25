@@ -3,6 +3,7 @@ package com.rudra.defineeasy.feature_dictionary.presentation
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rudra.defineeasy.core.analytics.AnalyticsService
 import com.rudra.defineeasy.core.util.Resource
 import com.rudra.defineeasy.feature_dictionary.domain.model.WordInfo
 import com.rudra.defineeasy.feature_dictionary.domain.model.CollectionSummary
@@ -31,7 +32,8 @@ class WordDetailViewModel @Inject constructor(
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val isWordFavoritedUseCase: IsWordFavoritedUseCase,
     private val getCustomCollectionsUseCase: GetCustomCollectionsUseCase,
-    private val addWordToCollectionUseCase: AddWordToCollectionUseCase
+    private val addWordToCollectionUseCase: AddWordToCollectionUseCase,
+    private val analyticsService: AnalyticsService
 ) : ViewModel() {
 
     private val selectedWord = savedStateHandle.get<String>("word").orEmpty()
@@ -79,11 +81,13 @@ class WordDetailViewModel @Inject constructor(
                     }
 
                     is Resource.Success -> {
+                        val wordInfo = result.data?.findExact(selectedWord)
                         _state.value = _state.value.copy(
-                            wordInfo = result.data?.findExact(selectedWord),
+                            wordInfo = wordInfo,
                             isLoading = false,
                             errorMessage = null
                         )
+                        wordInfo?.let { analyticsService.onWordViewed(it.word) }
                     }
 
                     is Resource.Error -> {
@@ -101,10 +105,17 @@ class WordDetailViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
+    fun logShare() {
+        val word = _state.value.wordInfo?.word ?: return
+        analyticsService.onWordShared(word)
+    }
+
     fun toggleFavorite() {
         val word = _state.value.wordInfo?.word ?: return
+        val currentFavorited = _state.value.wordInfo?.isFavorited ?: false
         viewModelScope.launch {
             toggleFavoriteUseCase(word)
+            analyticsService.onFavoriteToggled(word, !currentFavorited)
         }
     }
 

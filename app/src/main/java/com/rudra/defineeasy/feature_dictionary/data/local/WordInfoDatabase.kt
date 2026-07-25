@@ -25,6 +25,9 @@ import com.rudra.defineeasy.feature_dictionary.data.local.entity.WordInfoEntity
 @TypeConverters(Converters::class)
 abstract class WordInfoDatabase: RoomDatabase() {
     abstract val dao: WordInfoDao
+    abstract val searchHistoryDao: SearchHistoryDao
+    abstract val reviewHistoryDao: ReviewHistoryDao
+    abstract val collectionDao: CollectionDao
 
     companion object {
         val MIGRATION_1_2 = object : Migration(1, 2) {

@@ -2,6 +2,7 @@ package com.rudra.defineeasy.feature_dictionary.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rudra.defineeasy.core.analytics.AnalyticsService
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.GetDueReviewWordsUseCase
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.RateReviewedWordUseCase
 import com.rudra.defineeasy.preferences.ReviewPromptPreferences
@@ -21,7 +22,8 @@ class ReviewViewModel @Inject constructor(
     getDueReviewWordsUseCase: GetDueReviewWordsUseCase,
     private val rateReviewedWordUseCase: RateReviewedWordUseCase,
     private val streakPreferences: StreakPreferences,
-    private val reviewPromptPreferences: ReviewPromptPreferences
+    private val reviewPromptPreferences: ReviewPromptPreferences,
+    private val analyticsService: AnalyticsService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ReviewUiState())
@@ -61,13 +63,19 @@ class ReviewViewModel @Inject constructor(
     fun rateCurrentWord(quality: Int) {
         val currentWord = _uiState.value.currentWord ?: return
         viewModelScope.launch {
+            val completedCount = _uiState.value.completedCount + 1
             _uiState.value = _uiState.value.copy(
-                completedCount = _uiState.value.completedCount + 1,
+                completedCount = completedCount,
                 isAnswerVisible = false
             )
             rateReviewedWordUseCase(currentWord.word, quality)
             streakPreferences.recordReview(LocalDate.now().toEpochDay())
             reviewPromptPreferences.incrementReviewCount()
+
+            analyticsService.onWordRated(currentWord.word, quality)
+            if (completedCount >= _uiState.value.dueWords.size) {
+                analyticsService.onReviewCompleted(completedCount)
+            }
         }
     }
 }

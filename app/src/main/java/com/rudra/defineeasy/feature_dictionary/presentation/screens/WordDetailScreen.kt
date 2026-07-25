@@ -64,7 +64,9 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -121,7 +123,8 @@ fun WordDetailScreenRoute(
         onRetryClick = viewModel::refresh,
         onToggleFavorite = viewModel::toggleFavorite,
         onAddToCollection = viewModel::addWordToCollection,
-        onWordSelected = onWordSelected
+        onWordSelected = onWordSelected,
+        onShareWord = viewModel::logShare
     )
 }
 
@@ -135,12 +138,15 @@ fun WordDetailScreen(
     onRetryClick: () -> Unit,
     onToggleFavorite: () -> Unit,
     onAddToCollection: (Int) -> Unit,
-    onWordSelected: (String) -> Unit
+    onWordSelected: (String) -> Unit,
+    onShareWord: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val mediaPlayer = remember { MediaPlayer() }
     val ttsManager = remember { TtsManager(context) }
+    val hapticFeedback = LocalHapticFeedback.current
     var showCollectionDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     DisposableEffect(mediaPlayer, ttsManager) {
         onDispose {
@@ -174,19 +180,23 @@ fun WordDetailScreen(
                         IconButton(onClick = { showCollectionDialog = true }) {
                             Icon(
                                 imageVector = Icons.Default.BookmarkAdd,
-                                contentDescription = "Add to collection"
+                                contentDescription = stringResource(R.string.add_to_collection)
                             )
                         }
                         IconButton(onClick = {
                             val bitmap = WordCardRenderer.renderToBitmap(wordInfo)
                             WordCardRenderer.shareCard(context, bitmap)
+                            onShareWord()
                         }) {
                             Icon(
                                 imageVector = Icons.Default.Image,
-                                contentDescription = "Share word card"
+                                contentDescription = stringResource(R.string.share_card)
                             )
                         }
-                        IconButton(onClick = { shareWord(context, wordInfo) }) {
+                        IconButton(onClick = {
+                            shareWord(context, wordInfo)
+                            onShareWord()
+                        }) {
                             Icon(
                                 imageVector = Icons.Filled.Share,
                                 contentDescription = stringResource(R.string.share_word)
@@ -203,7 +213,10 @@ fun WordDetailScreen(
             state.wordInfo?.let { wordInfo ->
                 DetailActionBar(
                     isFavorited = wordInfo.isFavorited,
-                    onToggleFavorite = onToggleFavorite
+                    onToggleFavorite = {
+                        hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onToggleFavorite()
+                    }
                 )
             }
         }
@@ -241,8 +254,14 @@ fun WordDetailScreen(
                         onPlayAudio = {
                             if (state.wordInfo.audioUrl.isNotBlank()) {
                                 playAudio(mediaPlayer, state.wordInfo.audioUrl)
-                            } else {
+                            } else if (ttsManager.isAvailable) {
                                 ttsManager.speak(state.wordInfo.word)
+                            } else {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        context.getString(R.string.tts_unavailable)
+                                    )
+                                }
                             }
                         },
                         onRelatedWordClick = onWordSelected
@@ -479,7 +498,9 @@ private fun DetailActionBar(
                     } else {
                         Icons.Outlined.FavoriteBorder
                     },
-                    contentDescription = null
+                    contentDescription = stringResource(
+                        if (isFavorited) R.string.unfavorite_word else R.string.favorite_word
+                    )
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 Text(

@@ -1,4 +1,7 @@
 package com.rudra.defineeasy.feature_dictionary.presentation
+import com.rudra.defineeasy.core.analytics.AnalyticsService
+import com.rudra.defineeasy.preferences.StreakPreferences
+import com.rudra.defineeasy.preferences.ReviewPromptPreferences
 
 import app.cash.turbine.test
 import com.rudra.defineeasy.sampleWordInfo
@@ -35,6 +38,9 @@ class ReviewViewModelTest {
     private val getDueReviewWordsUseCase = mockk<GetDueReviewWordsUseCase>()
     private val rateReviewedWordUseCase = mockk<RateReviewedWordUseCase>()
     private val getDueReviewCountUseCase = mockk<GetDueReviewCountUseCase>()
+    private val streakPreferences = mockk<StreakPreferences>(relaxed = true)
+    private val reviewPromptPreferences = mockk<ReviewPromptPreferences>(relaxed = true)
+    private val analyticsService = mockk<AnalyticsService>(relaxed = true)
 
     @BeforeEach
     fun setUp() {
@@ -53,7 +59,7 @@ class ReviewViewModelTest {
     fun dueWordsLoadCorrectlyOnInit() = runTest {
         dueWordsFlow.value = listOf(sampleWordInfo("alpha"), sampleWordInfo("beta"))
 
-        val viewModel = ReviewViewModel(getDueReviewWordsUseCase, rateReviewedWordUseCase)
+        val viewModel = ReviewViewModel(getDueReviewWordsUseCase, rateReviewedWordUseCase, streakPreferences, reviewPromptPreferences, analyticsService)
         advanceUntilIdle()
 
         assertEquals(2, viewModel.uiState.value.dueWords.size)
@@ -63,7 +69,7 @@ class ReviewViewModelTest {
     @Test
     fun ratingAgainUpdatesSm2ValuesCorrectly() = runTest {
         dueWordsFlow.value = listOf(sampleWordInfo("alpha"))
-        val viewModel = ReviewViewModel(getDueReviewWordsUseCase, rateReviewedWordUseCase)
+        val viewModel = ReviewViewModel(getDueReviewWordsUseCase, rateReviewedWordUseCase, streakPreferences, reviewPromptPreferences, analyticsService)
         advanceUntilIdle()
 
         viewModel.toggleAnswerVisibility()
@@ -76,7 +82,7 @@ class ReviewViewModelTest {
     @Test
     fun ratingGoodUpdatesSm2ValuesCorrectly() = runTest {
         dueWordsFlow.value = listOf(sampleWordInfo("alpha"))
-        val viewModel = ReviewViewModel(getDueReviewWordsUseCase, rateReviewedWordUseCase)
+        val viewModel = ReviewViewModel(getDueReviewWordsUseCase, rateReviewedWordUseCase, streakPreferences, reviewPromptPreferences, analyticsService)
         advanceUntilIdle()
 
         viewModel.toggleAnswerVisibility()
@@ -89,7 +95,7 @@ class ReviewViewModelTest {
     @Test
     fun allWordsRatedShowsEmptyState() = runTest {
         dueWordsFlow.value = listOf(sampleWordInfo("alpha"))
-        val viewModel = ReviewViewModel(getDueReviewWordsUseCase, rateReviewedWordUseCase)
+        val viewModel = ReviewViewModel(getDueReviewWordsUseCase, rateReviewedWordUseCase, streakPreferences, reviewPromptPreferences, analyticsService)
         advanceUntilIdle()
 
         viewModel.toggleAnswerVisibility()

@@ -26,6 +26,9 @@ import com.rudra.defineeasy.feature_dictionary.domain.use_case.GetWordInfo
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.RateReviewedWordUseCase
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.ResetReviewProgressUseCase
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.ToggleFavoriteUseCase
+import com.rudra.defineeasy.feature_dictionary.data.local.CollectionDao
+import com.rudra.defineeasy.feature_dictionary.data.local.ReviewHistoryDao
+import com.rudra.defineeasy.feature_dictionary.data.local.SearchHistoryDao
 import com.rudra.defineeasy.feature_dictionary.data.local.WordInfoDao
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.AddWordToCollectionUseCase
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.GetCustomCollectionsUseCase
@@ -167,11 +170,29 @@ object WordInfoModule {
 
     @Provides
     @Singleton
+    fun provideSearchHistoryDao(db: WordInfoDatabase): SearchHistoryDao {
+        return db.searchHistoryDao
+    }
+
+    @Provides
+    @Singleton
+    fun provideReviewHistoryDao(db: WordInfoDatabase): ReviewHistoryDao {
+        return db.reviewHistoryDao
+    }
+
+    @Provides
+    @Singleton
+    fun provideCollectionDao(db: WordInfoDatabase): CollectionDao {
+        return db.collectionDao
+    }
+
+    @Provides
+    @Singleton
     fun provideWordInfoRepository(
         db: WordInfoDatabase,
         api: DictionaryApi
     ): WordInfoRepository {
-        return WordInfoRepositoryImpl(api, db.dao)
+        return WordInfoRepositoryImpl(api, db.dao, db.searchHistoryDao, db.reviewHistoryDao)
     }
 
     @Provides

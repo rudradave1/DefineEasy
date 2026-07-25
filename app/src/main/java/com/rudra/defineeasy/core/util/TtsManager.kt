@@ -17,6 +17,9 @@ class TtsManager(context: Context) {
         }
     }
 
+    val isAvailable: Boolean
+        get() = isInitialized
+
     fun speak(text: String) {
         if (isInitialized) {
             tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)

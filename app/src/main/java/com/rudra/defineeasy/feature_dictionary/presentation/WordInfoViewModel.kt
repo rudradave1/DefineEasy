@@ -5,6 +5,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rudra.defineeasy.core.analytics.AnalyticsService
 import com.rudra.defineeasy.core.util.Resource
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.ClearSearchHistoryUseCase
 import com.rudra.defineeasy.feature_dictionary.domain.use_case.DeleteSearchHistoryItemUseCase
@@ -25,7 +26,8 @@ class WordInfoViewModel @Inject constructor(
     private val getWordInfo: GetWordInfo,
     private val getSearchHistory: GetSearchHistory,
     private val deleteSearchHistoryItemUseCase: DeleteSearchHistoryItemUseCase,
-    private val clearSearchHistoryUseCase: ClearSearchHistoryUseCase
+    private val clearSearchHistoryUseCase: ClearSearchHistoryUseCase,
+    private val analyticsService: AnalyticsService
 ) : ViewModel() {
 
     private val _searchQuery = mutableStateOf("")
@@ -108,6 +110,7 @@ class WordInfoViewModel @Inject constructor(
     }
 
     private fun executeSearch(query: String) {
+        analyticsService.onSearch(query)
         getWordInfo(query)
             .onEach { result ->
                 when (result) {

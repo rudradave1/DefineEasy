@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rudra.defineeasy.BuildConfig
 import com.rudra.defineeasy.R
+import com.rudra.defineeasy.preferences.ThemeMode
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -102,6 +103,26 @@ fun SettingsScreen(
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            item {
+                SettingsSectionTitle(stringResource(R.string.settings_appearance_section))
+                SettingsClickableRow(
+                    title = stringResource(R.string.settings_theme),
+                    value = when (uiState.themeMode) {
+                        ThemeMode.SYSTEM -> stringResource(R.string.theme_system)
+                        ThemeMode.LIGHT -> stringResource(R.string.theme_light)
+                        ThemeMode.DARK -> stringResource(R.string.theme_dark)
+                    },
+                    onClick = {
+                        val next = when (uiState.themeMode) {
+                            ThemeMode.SYSTEM -> ThemeMode.LIGHT
+                            ThemeMode.LIGHT -> ThemeMode.DARK
+                            ThemeMode.DARK -> ThemeMode.SYSTEM
+                        }
+                        viewModel.setThemeMode(next)
+                    }
+                )
+            }
+
             item {
                 SettingsSectionTitle(stringResource(R.string.settings_notifications_section))
                 SettingsSwitchRow(
